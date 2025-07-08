@@ -8,15 +8,6 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME:wallet_user}
     password: ${SPRING_DATASOURCE_PASSWORD:wallet_password}
     driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-    open-in-view: false
   flyway:
     enabled: true
     baseline-on-migrate: true
@@ -30,7 +21,6 @@ spring:
     redis:
       repositories:
         enabled: false
-
 
 management:
   endpoints:
@@ -48,7 +38,6 @@ management:
       timeout: 2000ms
     defaults:
       enabled: true
-
   metrics:
     export:
       prometheus:
@@ -80,21 +69,6 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: logs/wallet-service.log
-
-jwt:
-  secret: ${JWT_SECRET:your-secret-key-here-change-in-production}
-  expiration: ${JWT_EXPIRATION:86400000}
-  issuer: ${JWT_ISSUER:wallet-service}
-  audience: ${JWT_AUDIENCE:wallet-api}
-
-rate-limit:
-  ip-requests-per-minute: 1000
-  user-requests-per-minute: 10000
-  ip-requests-per-hour: 50000
-  user-requests-per-hour: 100000
-  ip-requests-per-day: 500000
-  user-requests-per-day: 1000000
-  block-duration-seconds: 60
 
 resilience4j:
   circuitbreaker:

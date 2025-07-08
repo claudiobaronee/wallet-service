@@ -2,8 +2,8 @@
 CREATE TABLE wallets (
     id BIGSERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL UNIQUE,
-    balance DECIMAL(19,2) NOT NULL DEFAULT 0.00,
-    currency VARCHAR(3) NOT NULL DEFAULT 'BRL',
+    balance_amount DECIMAL(19,2) NOT NULL DEFAULT 0.00,
+    balance_currency VARCHAR(3) NOT NULL DEFAULT 'BRL',
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -31,8 +31,8 @@ CREATE TABLE transactions (
 CREATE TABLE balance_history (
     id BIGSERIAL PRIMARY KEY,
     wallet_id BIGINT NOT NULL,
-    balance DECIMAL(19,2) NOT NULL,
-    currency VARCHAR(3) NOT NULL DEFAULT 'BRL',
+    balance_amount DECIMAL(19,2) NOT NULL,
+    balance_currency VARCHAR(3) NOT NULL DEFAULT 'BRL',
     recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (wallet_id) REFERENCES wallets(id)
 );
@@ -66,9 +66,9 @@ CREATE TRIGGER update_wallets_updated_at
 CREATE OR REPLACE FUNCTION record_balance_history()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF OLD.balance != NEW.balance THEN
-        INSERT INTO balance_history (wallet_id, balance, currency, recorded_at)
-        VALUES (NEW.id, NEW.balance, NEW.currency, CURRENT_TIMESTAMP);
+    IF OLD.balance_amount != NEW.balance_amount OR OLD.balance_currency != NEW.balance_currency THEN
+        INSERT INTO balance_history (wallet_id, balance_amount, balance_currency, recorded_at)
+        VALUES (NEW.id, NEW.balance_amount, NEW.balance_currency, CURRENT_TIMESTAMP);
     END IF;
     RETURN NEW;
 END;

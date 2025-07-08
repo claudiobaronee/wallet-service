@@ -2,82 +2,79 @@ package com.wallet.domain.entities;
 
 import com.wallet.domain.enums.WalletStatus;
 import com.wallet.domain.valueobjects.Money;
-import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-@Entity
-@Table(name = "wallets")
-@EntityListeners(AuditingEntityListener.class)
+@Table("wallets")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Wallet {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @Column(name = "user_id", unique = true, nullable = false)
     private String userId;
     
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "amount", column = @Column(name = "balance")),
-        @AttributeOverride(name = "currency", column = @Column(name = "currency"))
-    })
-    private Money balance;
+    @Column("balance_amount")
+    private BigDecimal balanceAmount;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column("balance_currency")
+    private String balanceCurrency;
+    
     private WalletStatus status;
-    
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    
-    @LastModifiedDate
-    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Transaction> transactions = new ArrayList<>();
-    
-    protected Wallet() {
-        // Para JPA
-    }
-    
-    public Wallet(String userId, Money initialBalance) {
+    public Wallet(String userId, Money balance) {
         this.userId = userId;
-        this.balance = initialBalance;
+        this.balanceAmount = balance.getAmount();
+        this.balanceCurrency = balance.getCurrency();
         this.status = WalletStatus.ACTIVE;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
     
     public static Wallet create(String userId, String currency) {
-        Money initialBalance = Money.zero(currency);
-        return new Wallet(userId, initialBalance);
+        return new Wallet(userId, Money.zero(currency));
+    }
+    
+    public Money getBalance() {
+        return new Money(balanceAmount, balanceCurrency);
+    }
+    
+    public void setBalance(Money balance) {
+        this.balanceAmount = balance.getAmount();
+        this.balanceCurrency = balance.getCurrency();
     }
     
     public void deposit(Money amount) {
         if (status != WalletStatus.ACTIVE) {
             throw new IllegalStateException("Wallet is not active");
         }
-        if (!balance.getCurrency().equals(amount.getCurrency())) {
+        if (!this.balanceCurrency.equals(amount.getCurrency())) {
             throw new IllegalArgumentException("Currency mismatch");
         }
-        this.balance = this.balance.add(amount);
+        this.balanceAmount = this.balanceAmount.add(amount.getAmount());
+        this.updatedAt = LocalDateTime.now();
     }
     
     public void withdraw(Money amount) {
         if (status != WalletStatus.ACTIVE) {
             throw new IllegalStateException("Wallet is not active");
         }
-        if (!balance.getCurrency().equals(amount.getCurrency())) {
+        if (!this.balanceCurrency.equals(amount.getCurrency())) {
             throw new IllegalArgumentException("Currency mismatch");
         }
-        this.balance = this.balance.subtract(amount);
+        this.balanceAmount = this.balanceAmount.subtract(amount.getAmount());
+        this.updatedAt = LocalDateTime.now();
     }
     
     public void transferTo(Wallet targetWallet, Money amount) {
@@ -87,8 +84,8 @@ public class Wallet {
         if (targetWallet.status != WalletStatus.ACTIVE) {
             throw new IllegalStateException("Target wallet is not active");
         }
-        if (!balance.getCurrency().equals(amount.getCurrency()) || 
-            !targetWallet.balance.getCurrency().equals(amount.getCurrency())) {
+        if (!this.balanceCurrency.equals(amount.getCurrency()) || 
+            !targetWallet.balanceCurrency.equals(amount.getCurrency())) {
             throw new IllegalArgumentException("Currency mismatch");
         }
         
@@ -96,61 +93,35 @@ public class Wallet {
         targetWallet.deposit(amount);
     }
     
-    public void suspend() {
-        if (status == WalletStatus.CLOSED) {
-            throw new IllegalStateException("Cannot suspend a closed wallet");
-        }
-        this.status = WalletStatus.SUSPENDED;
-    }
-    
-    public void activate() {
-        if (status == WalletStatus.CLOSED) {
-            throw new IllegalStateException("Cannot activate a closed wallet");
-        }
-        this.status = WalletStatus.ACTIVE;
-    }
-    
-    public void close() {
-        if (balance.getAmount().compareTo(java.math.BigDecimal.ZERO) > 0) {
-            throw new IllegalStateException("Cannot close wallet with positive balance");
-        }
-        this.status = WalletStatus.CLOSED;
-    }
-    
-    // Getters
-    public Long getId() {
-        return id;
-    }
-    
-    public String getUserId() {
-        return userId;
-    }
-    
-    public Money getBalance() {
-        return balance;
-    }
-    
-    public WalletStatus getStatus() {
-        return status;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public List<Transaction> getTransactions() {
-        return new ArrayList<>(transactions);
+    public boolean hasSufficientFunds(Money amount) {
+        return this.balanceAmount.compareTo(amount.getAmount()) >= 0;
     }
     
     public boolean isActive() {
         return status == WalletStatus.ACTIVE;
     }
     
-    public boolean hasSufficientFunds(Money amount) {
-        return balance.isGreaterThan(amount) || balance.equals(amount);
+    public void activate() {
+        this.status = WalletStatus.ACTIVE;
+        this.updatedAt = LocalDateTime.now();
+    }
+    
+    public void suspend() {
+        this.status = WalletStatus.SUSPENDED;
+        this.updatedAt = LocalDateTime.now();
+    }
+    
+    public void close() {
+        this.status = WalletStatus.CLOSED;
+        this.updatedAt = LocalDateTime.now();
+    }
+    
+    /**
+     * Cria um registro de histórico de saldo para rastreabilidade
+     * 
+     * @return BalanceHistory com o saldo atual
+     */
+    public BalanceHistory createBalanceHistory() {
+        return new BalanceHistory(this.id, this.getBalance());
     }
 } 

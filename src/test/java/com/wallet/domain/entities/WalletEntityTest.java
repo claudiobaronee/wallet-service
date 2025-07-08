@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("Wallet Entity Tests")
 class WalletEntityTest {
 
-    private WalletEntity wallet;
-    private WalletEntity targetWallet;
+    private Wallet wallet;
+    private Wallet targetWallet;
 
     @BeforeEach
     void setUp() {
-        wallet = WalletEntity.create("user123", "BRL");
-        targetWallet = WalletEntity.create("user456", "BRL");
+        wallet = Wallet.create("user123", "BRL");
+        targetWallet = Wallet.create("user456", "BRL");
     }
 
     @Test
@@ -26,8 +26,6 @@ class WalletEntityTest {
         assertEquals("user123", wallet.getUserId());
         assertEquals(Money.zero("BRL"), wallet.getBalance());
         assertEquals(WalletStatus.ACTIVE, wallet.getStatus());
-        assertNotNull(wallet.getTransactions());
-        assertTrue(wallet.getTransactions().isEmpty());
     }
 
     @Test
@@ -229,15 +227,6 @@ class WalletEntityTest {
         
         assertEquals(new Money(500.00, "BRL"), wallet.getBalance());
         assertEquals(new Money(500.00, "BRL"), targetWallet.getBalance());
-    }
-
-    @Test
-    @DisplayName("Should return defensive copy of transactions list")
-    void shouldReturnDefensiveCopyOfTransactionsList() {
-        var transactions = wallet.getTransactions();
-        transactions.add(null); // Try to modify the returned list
-        
-        assertTrue(wallet.getTransactions().isEmpty()); // Original list should be unchanged
     }
 
     @Test

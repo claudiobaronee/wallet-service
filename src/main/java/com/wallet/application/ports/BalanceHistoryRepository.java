@@ -1,13 +1,15 @@
 package com.wallet.application.ports;
 
 import com.wallet.domain.entities.BalanceHistory;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Porta de saída para acesso a dados do histórico de saldos
+ */
 public interface BalanceHistoryRepository {
-    
-    BalanceHistory save(BalanceHistory balanceHistory);
     
     List<BalanceHistory> findByWalletId(Long walletId);
     

@@ -1,460 +1,359 @@
-# 🏦 Wallet Service
+# Wallet Service
 
-A robust, enterprise-grade microservice for digital wallet management built with Spring Boot, following Domain-Driven Design (DDD) and Hexagonal Architecture principles.
+Um microserviço para gerenciamento de carteiras digitais, permitindo operações de depósito, saque e transferência entre usuários.
 
-## 🚀 Features
+## 🚀 Funcionalidades
 
-- **Wallet Management**: Create, query, and manage digital wallets
-- **Financial Operations**: Deposit, withdraw, and transfer funds
-- **Transaction History**: Complete audit trail of all operations
-- **High Availability**: Circuit breakers, retry mechanisms, and resilience patterns
-- **Security**: JWT authentication, rate limiting, and API key support
-- **Performance**: Redis caching and optimized database queries
-- **Observability**: Prometheus metrics, health checks, and structured logging
-- **Event-Driven**: Asynchronous event processing for scalability
+### Funcionais
+- ✅ **Criar Carteira**: Criação de carteiras para usuários
+- ✅ **Consultar Saldo**: Recuperação do saldo atual da carteira
+- ✅ **Histórico de Saldo**: Consulta do saldo em pontos específicos do passado
+- ✅ **Depositar Fundos**: Depósito de dinheiro nas carteiras
+- ✅ **Sacar Fundos**: Saque de dinheiro das carteiras
+- ✅ **Transferir Fundos**: Transferência entre carteiras de usuários
 
-## 🏗️ Architecture
+### Não-Funcionais
+- ✅ **Rastreabilidade Completa**: Todos os movimentos são registrados para auditoria
+- ✅ **Alta Disponibilidade**: Configuração para ambiente de produção
+- ✅ **Monitoramento**: Health checks e métricas
+- ✅ **Resiliência**: Circuit breakers e retry policies
 
-### Hexagonal Architecture (Ports & Adapters)
+## 🛠️ Tecnologias
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Application Layer                        │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│  │ Use Cases   │  │ DTOs        │  │ Events      │        │
-│  └─────────────┘  └─────────────┘  └─────────────┘        │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                      Domain Layer                           │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│  │ Entities    │  │ Aggregates  │  │ Value Objs  │        │
-│  └─────────────┘  └─────────────┘  └─────────────┘        │
-└─────────────────────────────────────────────────────────────┘
-                              │
-┌─────────────────────────────────────────────────────────────┐
-│                  Infrastructure Layer                       │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐        │
-│  │ Controllers │  │ Repositories│  │ Security    │        │
-│  └─────────────┘  └─────────────┘  └─────────────┘        │
-└─────────────────────────────────────────────────────────────┘
-```
+- **Java 17** - Linguagem principal
+- **Spring Boot 3.2.0** - Framework web
+- **Spring Data JDBC** - Persistência de dados
+- **PostgreSQL** - Banco de dados
+- **Docker & Docker Compose** - Containerização
+- **Flyway** - Migração de banco de dados
+- **Resilience4j** - Padrões de resiliência
+- **Prometheus & Grafana** - Monitoramento
+- **OpenAPI/Swagger** - Documentação da API
 
-### Technology Stack
+## 📋 Pré-requisitos
 
-- **Framework**: Spring Boot 3.2
-- **Language**: Java 17
-- **Database**: PostgreSQL 15
-- **Cache**: Redis 7
-- **Security**: Spring Security + JWT
-- **Monitoring**: Prometheus + Grafana
-- **Testing**: JUnit 5 + TestContainers
-- **Documentation**: OpenAPI 3.0 (Swagger)
+- Docker e Docker Compose instalados
+- Mínimo 4GB de RAM disponível
+- Porta 8080 disponível
 
-## 🛠️ Prerequisites
+## 🚀 Instalação e Execução
 
-- Java 17+
-- Maven 3.8+
-- Docker & Docker Compose
-- PostgreSQL 15
-- Redis 7
-
-## 🚀 Quick Start
-
-### 1. Clone and Setup
-
+### 1. Clone o repositório
 ```bash
 git clone <repository-url>
 cd wallet-service
 ```
 
-### 2. Start All Services
-
+### 2. Configure as variáveis de ambiente
 ```bash
-# Iniciar todos os serviços
+cp env.example .env
+# Edite o arquivo .env se necessário
+```
+
+### 3. Execute o projeto
+```bash
 docker-compose up -d
-
-# Ver logs em tempo real
-docker-compose logs -f
-
-# Verificar status dos serviços
-docker-compose ps
 ```
 
-### 3. Access the Application
-
-- **API**: http://localhost:8080
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **Health Check**: http://localhost:8080/actuator/health
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000 (admin/admin)
-
-### 4. Stop Services
-
+### 4. Verifique se está funcionando
 ```bash
-# Parar todos os serviços
-docker-compose down
-
-# Parar e remover volumes (limpa dados)
-docker-compose down -v
+curl http://localhost:8080/api/wallets/health
 ```
 
-### 5. Troubleshooting
+## 📚 API Endpoints
 
+### Base URL: `http://localhost:8080/api/wallets`
+
+| Método | Endpoint | Descrição |
+|--------|----------|-----------|
+| `GET` | `/health` | Health check do serviço |
+| `POST` | `/` | Criar nova carteira |
+| `GET` | `/{userId}` | Consultar carteira |
+| `POST` | `/{userId}/deposit` | Realizar depósito |
+| `POST` | `/{userId}/withdraw` | Realizar saque |
+| `POST` | `/{userId}/transfer` | Transferir entre carteiras |
+| `GET` | `/{userId}/balance-history` | Histórico de saldo |
+
+### Exemplos de Uso
+
+#### 1. Criar Carteira
 ```bash
-# Ver logs de um serviço específico
-docker-compose logs wallet-service
-
-# Reiniciar um serviço específico
-docker-compose restart wallet-service
-
-# Rebuild e reiniciar
-docker-compose up --build -d
-```
-
-## 🐳 Docker Only
-
-Este projeto é configurado para rodar **apenas com Docker Compose**. Todos os serviços (PostgreSQL, Redis, Prometheus, Grafana) são gerenciados automaticamente.
-
-## 📚 API Documentation
-
-### Authentication
-
-All API endpoints require authentication via JWT token:
-
-```bash
-# Get JWT token (implement your auth service)
-curl -X POST http://localhost:8080/api/v1/auth/login \
+curl -X POST http://localhost:8080/api/wallets \
   -H "Content-Type: application/json" \
-  -d '{"username": "user", "password": "password"}'
-
-# Use token in requests
-curl -H "Authorization: Bearer <your-jwt-token>" \
-  http://localhost:8080/api/v1/wallets
+  -d '{
+    "userId": "user123",
+    "currency": "BRL"
+  }'
 ```
 
-### Core Endpoints
-
-#### Create Wallet
+#### 2. Consultar Carteira
 ```bash
-POST /api/v1/wallets
+curl http://localhost:8080/api/wallets/user123
+```
+
+#### 3. Realizar Depósito
+```bash
+curl -X POST http://localhost:8080/api/wallets/user123/deposit \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 100.50,
+    "currency": "BRL"
+  }'
+```
+
+#### 4. Realizar Saque
+```bash
+curl -X POST http://localhost:8080/api/wallets/user123/withdraw \
+  -H "Content-Type: application/json" \
+  -d '{
+    "amount": 50.25,
+    "currency": "BRL"
+  }'
+```
+
+#### 5. Transferir Entre Carteiras
+```bash
+curl -X POST http://localhost:8080/api/wallets/user123/transfer \
+  -H "Content-Type: application/json" \
+  -d '{
+    "targetUserId": "user456",
+    "amount": 25.00,
+    "currency": "BRL"
+  }'
+```
+
+#### 6. Consultar Histórico de Saldo
+```bash
+curl http://localhost:8080/api/wallets/user123/balance-history
+```
+
+## 🧪 Testes
+
+### Executar Testes
+```bash
+docker-compose exec wallet-service mvn test
+```
+
+### Cobertura de Testes
+```bash
+docker-compose exec wallet-service mvn jacoco:report
+```
+
+## 📊 Monitoramento
+
+### Prometheus
+- URL: http://localhost:9090
+- Métricas disponíveis: transações, saldos, erros, latência
+
+### Grafana
+- URL: http://localhost:3000
+- Dashboards pré-configurados para monitoramento
+
+### Health Check
+```bash
+curl http://localhost:8080/api/wallets/health
+```
+
+## 🏗️ Arquitetura
+
+### Padrão Hexagonal (Ports & Adapters)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Application Layer                        │
+├─────────────────────────────────────────────────────────────┤
+│                    Domain Layer                             │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │   Wallet    │  │ Transaction │  │BalanceHistory│         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+├─────────────────────────────────────────────────────────────┤
+│                  Infrastructure Layer                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐         │
+│  │ Controllers │  │ Repositories │  │   Database  │         │
+│  └─────────────┘  └─────────────┘  └─────────────┘         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Componentes Principais
+
+1. **Domain Layer**: Entidades de negócio (Wallet, Transaction, BalanceHistory)
+2. **Application Layer**: Casos de uso e regras de negócio
+3. **Infrastructure Layer**: Controllers, Repositories, Database
+
+## 🔒 Segurança e Rastreabilidade
+
+### Rastreabilidade
+- Cada operação gera um `transactionId` único
+- Histórico completo de saldos registrado
+- Timestamps em todas as operações
+- Logs estruturados para auditoria
+
+### Validações
+- Verificação de saldo suficiente
+- Validação de moeda
+- Verificação de status da carteira
+- Prevenção de transferências para mesma carteira
+
+## 📈 Escalabilidade
+
+### Estratégias Implementadas
+- **Cache Redis**: Para consultas frequentes
+- **Connection Pooling**: HikariCP para PostgreSQL
+- **Circuit Breakers**: Resilience4j para resiliência
+- **Métricas**: Prometheus para monitoramento
+
+### Possíveis Melhorias
+- **Event Sourcing**: Para auditoria completa
+- **CQRS**: Separação de leitura/escrita
+- **Saga Pattern**: Para transações distribuídas
+- **API Gateway**: Para rate limiting e autenticação
+
+## 🕐 Decisões de Design
+
+### 1. Arquitetura Hexagonal
+**Decisão**: Usar Ports & Adapters para desacoplamento
+**Justificativa**: Facilita testes, manutenção e evolução do sistema
+
+### 2. Spring Data JDBC vs JPA
+**Decisão**: Usar Spring Data JDBC
+**Justificativa**: Mais simples, melhor performance, controle total sobre SQL
+
+### 3. PostgreSQL
+**Decisão**: Banco relacional PostgreSQL
+**Justificativa**: ACID, confiabilidade, suporte a JSON, open-source
+
+### 4. Value Objects
+**Decisão**: Classe `Money` como value object
+**Justificativa**: Encapsula lógica monetária, imutabilidade, type safety
+
+### 5. Histórico de Saldo
+**Decisão**: Tabela separada para histórico
+**Justificativa**: Rastreabilidade completa, auditoria, performance
+
+## ⚖️ Trade-offs e Compromissos
+
+### 1. Simplicidade vs Complexidade
+**Compromisso**: Arquitetura simples mas escalável
+**Justificativa**: Projeto de 6-8 horas, mas preparado para produção
+
+### 2. Performance vs Rastreabilidade
+**Compromisso**: Histórico completo impacta performance
+**Justificativa**: Requisito crítico para auditoria financeira
+
+### 3. Flexibilidade vs Segurança
+**Compromisso**: Validações rigorosas
+**Justificativa**: Sistema financeiro requer segurança máxima
+
+### 4. Tecnologia vs Prazo
+**Compromisso**: Stack moderna mas conhecida
+**Justificativa**: Spring Boot é maduro e produtivo
+
+## 🚨 Assunções
+
+### 1. Autenticação/Autorização
+**Assunção**: Não implementada (fora do escopo)
+**Justificativa**: Foco nas funcionalidades core do wallet
+
+### 2. Moeda Única por Carteira
+**Assunção**: Uma carteira = uma moeda
+**Justificativa**: Simplifica o modelo e evita complexidade de câmbio
+
+### 3. Transações Síncronas
+**Assunção**: Todas as operações são síncronas
+**Justificativa**: Garante consistência imediata
+
+### 4. Usuário Único por Carteira
+**Assunção**: Relação 1:1 entre usuário e carteira
+**Justificativa**: Modelo simplificado para o escopo
+
+## 📝 Logs e Debugging
+
+### Logs Estruturados
+```json
 {
+  "timestamp": "2024-01-01T10:00:00Z",
+  "level": "INFO",
+  "service": "wallet-service",
+  "transactionId": "1234567890",
   "userId": "user123",
+  "operation": "deposit",
+  "amount": 100.50,
   "currency": "BRL"
 }
 ```
 
-#### Get Wallet Balance
+### Debugging
 ```bash
-GET /api/v1/wallets/{walletId}/balance
+# Ver logs do serviço
+docker-compose logs -f wallet-service
+
+# Acessar banco de dados
+docker-compose exec postgres psql -U wallet -d wallet_db
 ```
 
-#### Deposit Funds
+## 🔧 Configuração
+
+### Variáveis de Ambiente
 ```bash
-POST /api/v1/wallets/{walletId}/deposit
-{
-  "amount": 100.50,
-  "currency": "BRL",
-  "description": "Initial deposit"
-}
-```
-
-#### Withdraw Funds
-```bash
-POST /api/v1/wallets/{walletId}/withdraw
-{
-  "amount": 50.25,
-  "currency": "BRL",
-  "description": "ATM withdrawal"
-}
-```
-
-#### Transfer Funds
-```bash
-POST /api/v1/wallets/{walletId}/transfer
-{
-  "targetWalletId": "wallet456",
-  "amount": 25.00,
-  "currency": "BRL",
-  "description": "Payment to friend"
-}
-```
-
-#### Get Transaction History
-```bash
-GET /api/v1/wallets/{walletId}/transactions?page=0&size=20
-```
-
-## 🧪 Testing
-
-### Unit Tests
-```bash
-mvn test
-```
-
-### Integration Tests
-```bash
-mvn verify
-```
-
-### Test Coverage
-```bash
-mvn jacoco:report
-open target/site/jacoco/index.html
-```
-
-### API Tests
-```bash
-# Using curl
-curl -X POST http://localhost:8080/api/v1/wallets \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{"userId": "test123", "currency": "BRL"}'
-
-# Using Swagger UI
-open http://localhost:8080/swagger-ui.html
-```
-
-## 📊 Monitoring
-
-### Health Checks
-- **Application**: `http://localhost:8080/actuator/health`
-- **Database**: `http://localhost:8080/actuator/health/db`
-- **Redis**: `http://localhost:8080/actuator/health/redis`
-
-### Metrics
-- **Prometheus**: `http://localhost:9090`
-- **Grafana**: `http://localhost:3000` (admin/admin)
-
-### Key Metrics
-- `wallet.created` - Number of wallets created
-- `wallet.deposit` - Number of deposits
-- `wallet.withdraw` - Number of withdrawals
-- `wallet.transfer` - Number of transfers
-- `transaction.created` - Number of transactions
-- `transaction.failed` - Number of failed transactions
-
-## 🔧 Configuration
-
-### Application Properties
-
-```yaml
-# Server
-server:
-  port: 8080
-
 # Database
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/wallet_db
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
-  
-  # Redis Cache
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-  
-  # Cache Configuration
-  cache:
-    type: redis
-    redis:
-      time-to-live: 1800000 # 30 minutes
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=wallet_db
+DB_USER=wallet
+DB_PASSWORD=wallet123
 
-# Security
-jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:86400000}
+# Redis
+REDIS_HOST=redis
+REDIS_PORT=6379
 
-# Rate Limiting
-rate-limit:
-  ip-requests-per-minute: ${RATE_LIMIT_IP:100}
-  user-requests-per-minute: ${RATE_LIMIT_USER:1000}
-
-# Resilience4j
-resilience4j:
-  circuitbreaker:
-    instances:
-      wallet-service:
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 60s
-      database:
-        failure-rate-threshold: 30
-        wait-duration-in-open-state: 30s
-  retry:
-    instances:
-      wallet-service:
-        max-attempts: 3
-        wait-duration: 100ms
-      database:
-        max-attempts: 3
-        wait-duration: 200ms
-
-# Monitoring
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,prometheus,metrics
-  endpoint:
-    health:
-      show-details: always
-  metrics:
-    export:
-      prometheus:
-        enabled: true
-
-# API Documentation
-springdoc:
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
+# Application
+SERVER_PORT=8080
+LOG_LEVEL=INFO
 ```
 
-## 🏗️ Project Structure
+## 📊 Métricas Disponíveis
 
-```
-src/
-├── main/
-│   ├── java/com/wallet/
-│   │   ├── WalletServiceApplication.java
-│   │   ├── domain/                    # Domain Layer
-│   │   │   ├── entities/             # Business entities
-│   │   │   ├── aggregates/           # Aggregates
-│   │   │   ├── valueobjects/         # Value objects
-│   │   │   ├── events/               # Domain events
-│   │   │   └── enums/                # Enumerations
-│   │   ├── application/              # Application Layer
-│   │   │   ├── usecases/            # Use cases
-│   │   │   ├── dto/                 # Data transfer objects
-│   │   │   ├── events/              # Application events
-│   │   │   └── ports/               # Ports (interfaces)
-│   │   ├── infrastructure/          # Infrastructure Layer
-│   │   │   ├── controllers/         # REST controllers
-│   │   │   ├── security/            # Security configuration
-│   │   │   ├── cache/               # Cache configuration
-│   │   │   ├── resilience/          # Circuit breaker config
-│   │   │   ├── metrics/             # Metrics configuration
-│   │   │   └── config/              # Other configurations
-│   │   └── adapters/                # Adapters Layer
-│   │       ├── rest/                # REST adapters
-│   │       └── infrastructure/      # Infrastructure adapters
-│   └── resources/
-│       ├── application.yml          # Application configuration
-│       ├── db/migration/            # Database migrations
-│       └── monitoring/              # Monitoring configs
-└── test/                            # Test code
-    ├── java/
-    └── resources/
-```
+- `wallet_operations_total`: Total de operações
+- `wallet_balance_current`: Saldo atual por usuário
+- `wallet_transactions_duration`: Duração das transações
+- `wallet_errors_total`: Total de erros
 
-## 🔒 Security
+## 🚀 Deploy em Produção
 
-### Authentication
-- **JWT Tokens**: Stateless authentication
-- **API Keys**: Service-to-service authentication
-- **Rate Limiting**: Protection against abuse
-
-### Authorization
-- **Role-based**: USER, SERVICE roles
-- **Resource-based**: Users can only access their own wallets
-
-### Data Protection
-- **Encryption**: Sensitive data encrypted at rest
-- **Audit Trail**: Complete transaction history
-- **Input Validation**: Comprehensive validation
-
-## 📈 Performance
-
-### Caching Strategy
-- **Redis**: Distributed caching
-- **TTL**: 15 minutes for wallets, 10 minutes for transactions
-- **Cache Keys**: User-specific to ensure isolation
-
-### Database Optimization
-- **Indexes**: Optimized for common queries
-- **Connection Pooling**: HikariCP configuration
-- **Query Optimization**: Efficient SQL queries
-
-### Resilience Patterns
-- **Circuit Breaker**: Prevents cascade failures
-- **Retry**: Automatic retry for transient failures
-- **Timeout**: Configurable timeouts
-
-## 🚀 Deployment
-
-### Docker
-
+### 1. Build da Imagem
 ```bash
-# Build image
-docker build -t wallet-service .
-
-# Run container
-docker run -p 8080:8080 \
-  -e SPRING_PROFILES_ACTIVE=docker \
-  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/wallet_db \
-  wallet-service
+docker build -t wallet-service:latest .
 ```
 
-### Kubernetes
-
+### 2. Configuração de Produção
 ```bash
-# Apply configurations
-kubectl apply -f k8s/
-
-# Check status
-kubectl get pods -l app=wallet-service
+# Ajuste as variáveis de ambiente
+# Configure volumes para persistência
+# Configure networks para segurança
 ```
 
-### Production Checklist
+### 3. Monitoramento
+```bash
+# Configure alertas no Prometheus
+# Configure dashboards no Grafana
+# Configure logs centralizados
+```
 
-- [ ] Change default passwords
-- [ ] Configure SSL/TLS
-- [ ] Set up monitoring alerts
-- [ ] Configure backup strategy
-- [ ] Set up CI/CD pipeline
-- [ ] Configure logging aggregation
-- [ ] Set up disaster recovery
+## 📞 Suporte
 
-## 🤝 Contributing
+Para dúvidas ou problemas:
+1. Verifique os logs: `docker-compose logs wallet-service`
+2. Consulte a documentação da API: http://localhost:8080/swagger-ui.html
+3. Verifique o health check: http://localhost:8080/api/wallets/health
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## ⏱️ Estimativa de Tempo
 
-### Development Guidelines
-
-- Follow DDD principles
-- Write comprehensive tests
-- Use meaningful commit messages
-- Follow code style guidelines
-- Update documentation
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-- **Documentation**: Check this README and API docs
-- **Issues**: Create an issue on GitHub
-- **Discussions**: Use GitHub Discussions
-- **Email**: support@walletservice.com
-
-## 🗺️ Roadmap
-
-- [ ] Multi-currency support
-- [ ] International transfers
-- [ ] Fraud detection
-- [ ] Mobile SDK
-- [ ] Webhook notifications
-- [ ] Advanced analytics
-- [ ] Blockchain integration
+**Tempo Investido**: ~6 horas
+- **Setup inicial**: 30 min
+- **Implementação core**: 3 horas
+- **Testes e validação**: 1 hora
+- **Documentação**: 1 hora
+- **Refinamentos**: 30 min
 
 ---
 
-**Built with ❤️ using Spring Boot and DDD principles** 
+**Desenvolvido com ❤️ seguindo as melhores práticas de desenvolvimento de software.** 

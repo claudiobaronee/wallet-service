@@ -1,68 +1,52 @@
 package com.wallet.domain.entities;
 
 import com.wallet.domain.valueobjects.Money;
-import jakarta.persistence.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "balance_history")
-@EntityListeners(AuditingEntityListener.class)
+@Table("balance_history")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BalanceHistory {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "wallet_id", nullable = false)
-    private Wallet wallet;
+    private Long walletId;
     
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "amount", column = @Column(name = "balance")),
-        @AttributeOverride(name = "currency", column = @Column(name = "currency"))
-    })
-    private Money balance;
+    @Column("balance_amount")
+    private BigDecimal balanceAmount;
     
-    @CreatedDate
-    @Column(name = "recorded_at", nullable = false, updatable = false)
+    @Column("balance_currency")
+    private String balanceCurrency;
+    
     private LocalDateTime recordedAt;
     
-    protected BalanceHistory() {
-        // Para JPA
-    }
-    
-    public BalanceHistory(Wallet wallet, Money balance) {
-        this.wallet = wallet;
-        this.balance = balance;
+    public BalanceHistory(Long walletId, Money balance) {
+        this.walletId = walletId;
+        this.balanceAmount = balance.getAmount();
+        this.balanceCurrency = balance.getCurrency();
         this.recordedAt = LocalDateTime.now();
     }
     
-    public static BalanceHistory record(Wallet wallet, Money balance) {
-        return new BalanceHistory(wallet, balance);
-    }
-    
-    // Getters
-    public Long getId() {
-        return id;
-    }
-    
-    public Wallet getWallet() {
-        return wallet;
+    public static BalanceHistory create(Long walletId, Money balance) {
+        return new BalanceHistory(walletId, balance);
     }
     
     public Money getBalance() {
-        return balance;
+        return new Money(balanceAmount, balanceCurrency);
     }
     
-    public LocalDateTime getRecordedAt() {
-        return recordedAt;
-    }
-    
-    public void setWallet(Wallet wallet) {
-        this.wallet = wallet;
+    public void setBalance(Money balance) {
+        this.balanceAmount = balance.getAmount();
+        this.balanceCurrency = balance.getCurrency();
     }
 } 

@@ -2,15 +2,14 @@ package com.wallet.application.ports;
 
 import com.wallet.domain.entities.Transaction;
 import com.wallet.domain.enums.TransactionType;
+
 import java.time.LocalDateTime;
 import java.util.List;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import com.wallet.domain.entities.TransactionEntity;
 
+/**
+ * Porta de saída para acesso a dados de transações
+ */
 public interface TransactionRepository {
-    
-    Transaction save(Transaction transaction);
     
     List<Transaction> findByWalletId(Long walletId);
     
@@ -19,7 +18,8 @@ public interface TransactionRepository {
     List<Transaction> findByWalletIdAndTransactionDateBetween(Long walletId, LocalDateTime startDate, LocalDateTime endDate);
     
     List<Transaction> findBySourceWalletIdOrTargetWalletId(Long sourceWalletId, Long targetWalletId);
-
-    Page<Transaction> findByWalletUserId(String userId, Pageable pageable);
-    Page<Transaction> findByWalletUserIdAndTransactionType(String userId, TransactionType type, Pageable pageable);
+    
+    List<Transaction> findByWalletUserId(String userId);
+    
+    List<Transaction> findByWalletUserIdAndTransactionType(String userId, TransactionType type);
 } 
