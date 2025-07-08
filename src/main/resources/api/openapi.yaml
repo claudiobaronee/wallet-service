@@ -2,24 +2,24 @@ openapi: 3.0.3
 info:
   title: Wallet Service API
   description: |
-    Microserviço de carteira digital com arquitetura hexagonal e event-driven design.
+    Digital wallet microservice with hexagonal architecture and event-driven design.
     
-    ## Funcionalidades
-    - Criar e gerenciar carteiras digitais
-    - Realizar operações financeiras (depósito, saque, transferência)
-    - Consultar saldos e histórico
-    - Auditoria completa de transações
+    ## Features
+    - Create and manage digital wallets
+    - Perform financial operations (deposit, withdraw, transfer)
+    - Query balances and history
+    - Full transaction audit
     
-    ## Autenticação
-    Esta API utiliza autenticação via API Key no header `X-API-Key`.
+    ## Authentication
+    This API uses API Key authentication via the `X-API-Key` header.
     
     ## Rate Limiting
-    - 100 requests por minuto por IP
-    - 1000 requests por hora por usuário
+    - 100 requests per minute per IP
+    - 1000 requests per hour per user
     
-    ## Versionamento
-    - Versão atual: v1
-    - Endpoints versionados: `/api/v1/*`
+    ## Versioning
+    - Current version: v1
+    - Versioned endpoints: `/api/v1/*`
   version: 1.0.0
   contact:
     name: Wallet Service Team
@@ -30,27 +30,27 @@ info:
 
 servers:
   - url: http://localhost:8080
-    description: Ambiente de desenvolvimento
+    description: Development environment
   - url: https://api.wallet-service.com
-    description: Ambiente de produção
+    description: Production environment
 
 tags:
   - name: Wallets
-    description: Operações de carteira
+    description: Wallet operations
   - name: Transactions
-    description: Operações financeiras
+    description: Financial operations
   - name: Balance
-    description: Consultas de saldo
+    description: Balance queries
   - name: Health
-    description: Monitoramento e saúde
+    description: Monitoring and health
 
 paths:
   /api/v1/wallets:
     post:
       tags:
         - Wallets
-      summary: Criar nova carteira
-      description: Cria uma nova carteira digital para um usuário
+      summary: Create new wallet
+      description: Creates a new digital wallet for a user
       operationId: createWallet
       security:
         - ApiKeyAuth: []
@@ -62,18 +62,18 @@ paths:
               $ref: '#/components/schemas/CreateWalletRequest'
             examples:
               brl_wallet:
-                summary: Carteira em Real
+                summary: BRL Wallet
                 value:
                   userId: "user123"
                   currency: "BRL"
               usd_wallet:
-                summary: Carteira em Dólar
+                summary: USD Wallet
                 value:
                   userId: "user456"
                   currency: "USD"
       responses:
         '201':
-          description: Carteira criada com sucesso
+          description: Wallet created successfully
           content:
             application/json:
               schema:
@@ -88,21 +88,21 @@ paths:
                 createdAt: "2024-01-15T10:30:00Z"
                 updatedAt: "2024-01-15T10:30:00Z"
         '400':
-          description: Dados inválidos
+          description: Invalid data
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
-          description: Carteira já existe para o usuário
+          description: Wallet already exists for the user
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '429':
-          description: Rate limit excedido
+          description: Rate limit exceeded
         '500':
-          description: Erro interno do servidor
+          description: Internal server error
           content:
             application/json:
               schema:
@@ -112,8 +112,8 @@ paths:
     get:
       tags:
         - Wallets
-      summary: Consultar carteira
-      description: Retorna os dados da carteira de um usuário
+      summary: Get wallet
+      description: Returns the wallet data for a user
       operationId: getWallet
       security:
         - ApiKeyAuth: []
@@ -121,35 +121,35 @@ paths:
         - name: userId
           in: path
           required: true
-          description: ID do usuário
+          description: User ID
           schema:
             type: string
             pattern: '^[a-zA-Z0-9_-]+$'
             example: "user123"
       responses:
         '200':
-          description: Carteira encontrada
+          description: Wallet found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WalletResponse'
         '404':
-          description: Carteira não encontrada
+          description: Wallet not found
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '429':
-          description: Rate limit excedido
+          description: Rate limit exceeded
         '500':
-          description: Erro interno do servidor
+          description: Internal server error
 
   /api/v1/wallets/{userId}/deposit:
     post:
       tags:
         - Transactions
-      summary: Depositar fundos
-      description: Realiza depósito de fundos na carteira
+      summary: Deposit funds
+      description: Performs deposit of funds into the wallet
       operationId: depositMoney
       security:
         - ApiKeyAuth: []
@@ -157,7 +157,7 @@ paths:
         - name: userId
           in: path
           required: true
-          description: ID do usuário
+          description: User ID
           schema:
             type: string
             example: "user123"
@@ -170,35 +170,35 @@ paths:
             example:
               amount: 100.50
               currency: "BRL"
-              description: "Depósito inicial"
+              description: "Initial deposit"
       responses:
         '200':
-          description: Depósito realizado com sucesso
+          description: Deposit successful
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WalletResponse'
         '400':
-          description: Dados inválidos ou moeda incompatível
+          description: Invalid data or incompatible currency
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Carteira não encontrada
+          description: Wallet not found
         '422':
-          description: Carteira não está ativa
+          description: Wallet is not active
         '429':
-          description: Rate limit excedido
+          description: Rate limit exceeded
         '500':
-          description: Erro interno do servidor
+          description: Internal server error
 
   /api/v1/wallets/{userId}/withdraw:
     post:
       tags:
         - Transactions
-      summary: Sacar fundos
-      description: Realiza saque de fundos da carteira
+      summary: Withdraw funds
+      description: Performs withdrawal of funds from the wallet
       operationId: withdrawMoney
       security:
         - ApiKeyAuth: []
@@ -206,7 +206,7 @@ paths:
         - name: userId
           in: path
           required: true
-          description: ID do usuário
+          description: User ID
           schema:
             type: string
             example: "user123"
@@ -219,35 +219,35 @@ paths:
             example:
               amount: 50.00
               currency: "BRL"
-              description: "Saque para pagamento"
+              description: "Withdrawal for payment"
       responses:
         '200':
-          description: Saque realizado com sucesso
+          description: Withdrawal successful
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/WalletResponse'
         '400':
-          description: Dados inválidos ou moeda incompatível
+          description: Invalid data or incompatible currency
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Carteira não encontrada
+          description: Wallet not found
         '422':
-          description: Saldo insuficiente ou carteira não ativa
+          description: Insufficient balance or wallet not active
         '429':
-          description: Rate limit excedido
+          description: Rate limit exceeded
         '500':
-          description: Erro interno do servidor
+          description: Internal server error
 
   /api/v1/wallets/{userId}/transfer:
     post:
       tags:
         - Transactions
-      summary: Transferir fundos
-      description: Transfere fundos entre carteiras
+      summary: Transfer funds
+      description: Transfers funds between wallets
       operationId: transferMoney
       security:
         - ApiKeyAuth: []
@@ -255,7 +255,7 @@ paths:
         - name: userId
           in: path
           required: true
-          description: ID do usuário de origem
+          description: Source user ID
           schema:
             type: string
             example: "user123"
@@ -268,36 +268,36 @@ paths:
             example:
               amount: 25.00
               currency: "BRL"
-              description: "Transferência para amigo"
+              description: "Transfer to friend"
               targetUserId: "user456"
       responses:
         '200':
-          description: Transferência realizada com sucesso
+          description: Transfer successful
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransferResponse'
         '400':
-          description: Dados inválidos ou moeda incompatível
+          description: Invalid data or incompatible currency
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: Carteira de origem ou destino não encontrada
+          description: Source wallet or target wallet not found
         '422':
-          description: Saldo insuficiente ou carteira não ativa
+          description: Insufficient balance or wallet not active
         '429':
-          description: Rate limit excedido
+          description: Rate limit exceeded
         '500':
-          description: Erro interno do servidor
+          description: Internal server error
 
   /api/v1/wallets/{userId}/balance/history:
     get:
       tags:
         - Balance
-      summary: Consultar saldo histórico
-      description: Retorna o saldo da carteira em uma data específica
+      summary: Get balance history
+      description: Returns the balance of the wallet for a specific date
       operationId: getBalanceHistory
       security:
         - ApiKeyAuth: []
@@ -305,21 +305,21 @@ paths:
         - name: userId
           in: path
           required: true
-          description: ID do usuário
+          description: User ID
           schema:
             type: string
             example: "user123"
         - name: date
           in: query
           required: true
-          description: Data para consulta do saldo
+          description: Date for balance query
           schema:
             type: string
             format: date-time
             example: "2024-01-15T10:30:00Z"
       responses:
         '200':
-          description: Saldo histórico retornado
+          description: Balance history returned
           content:
             application/json:
               schema:
@@ -331,18 +331,18 @@ paths:
                   currency: "BRL"
                 date: "2024-01-15T10:30:00Z"
         '404':
-          description: Carteira não encontrada
+          description: Wallet not found
         '429':
-          description: Rate limit excedido
+          description: Rate limit exceeded
         '500':
-          description: Erro interno do servidor
+          description: Internal server error
 
   /api/v1/wallets/{userId}/transactions:
     get:
       tags:
         - Transactions
-      summary: Listar transações
-      description: Retorna o histórico de transações da carteira
+      summary: List transactions
+      description: Returns the transaction history of the wallet
       operationId: getTransactions
       security:
         - ApiKeyAuth: []
@@ -350,20 +350,20 @@ paths:
         - name: userId
           in: path
           required: true
-          description: ID do usuário
+          description: User ID
           schema:
             type: string
             example: "user123"
         - name: page
           in: query
-          description: Número da página
+          description: Page number
           schema:
             type: integer
             minimum: 0
             default: 0
         - name: size
           in: query
-          description: Tamanho da página
+          description: Page size
           schema:
             type: integer
             minimum: 1
@@ -371,51 +371,51 @@ paths:
             default: 20
         - name: type
           in: query
-          description: Filtrar por tipo de transação
+          description: Filter by transaction type
           schema:
             type: string
             enum: [DEPOSIT, WITHDRAW, TRANSFER]
       responses:
         '200':
-          description: Lista de transações
+          description: List of transactions
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransactionListResponse'
         '404':
-          description: Carteira não encontrada
+          description: Wallet not found
         '429':
-          description: Rate limit excedido
+          description: Rate limit exceeded
         '500':
-          description: Erro interno do servidor
+          description: Internal server error
 
   /actuator/health:
     get:
       tags:
         - Health
       summary: Health Check
-      description: Verifica a saúde do serviço
+      description: Verifies the health of the service
       operationId: healthCheck
       responses:
         '200':
-          description: Serviço saudável
+          description: Service healthy
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HealthResponse'
         '503':
-          description: Serviço não saudável
+          description: Service unhealthy
 
   /actuator/prometheus:
     get:
       tags:
         - Health
-      summary: Métricas Prometheus
-      description: Retorna métricas no formato Prometheus
+      summary: Prometheus Metrics
+      description: Returns metrics in Prometheus format
       operationId: getMetrics
       responses:
         '200':
-          description: Métricas retornadas
+          description: Metrics returned
           content:
             text/plain:
               schema:
@@ -427,7 +427,7 @@ components:
       type: apiKey
       in: header
       name: X-API-Key
-      description: API Key para autenticação
+      description: API Key for authentication
 
   schemas:
     CreateWalletRequest:
@@ -439,12 +439,12 @@ components:
         userId:
           type: string
           pattern: '^[a-zA-Z0-9_-]+$'
-          description: ID único do usuário
+          description: Unique user ID
           example: "user123"
         currency:
           type: string
           pattern: '^[A-Z]{3}$'
-          description: Código da moeda (ISO 4217)
+          description: Currency code (ISO 4217)
           example: "BRL"
       additionalProperties: false
 
@@ -453,28 +453,28 @@ components:
       properties:
         id:
           type: integer
-          description: ID da carteira
+          description: Wallet ID
           example: 1
         userId:
           type: string
-          description: ID do usuário
+          description: User ID
           example: "user123"
         balance:
           $ref: '#/components/schemas/Money'
         status:
           type: string
           enum: [ACTIVE, SUSPENDED, CLOSED]
-          description: Status da carteira
+          description: Wallet status
           example: "ACTIVE"
         createdAt:
           type: string
           format: date-time
-          description: Data de criação
+          description: Creation date
           example: "2024-01-15T10:30:00Z"
         updatedAt:
           type: string
           format: date-time
-          description: Data da última atualização
+          description: Last update date
           example: "2024-01-15T10:30:00Z"
 
     Money:
@@ -487,12 +487,12 @@ components:
           type: number
           format: decimal
           minimum: 0
-          description: Valor monetário
+          description: Monetary value
           example: 100.50
         currency:
           type: string
           pattern: '^[A-Z]{3}$'
-          description: Código da moeda
+          description: Currency code
           example: "BRL"
 
     TransactionRequest:
@@ -505,18 +505,18 @@ components:
           type: number
           format: decimal
           minimum: 0.01
-          description: Valor da transação
+          description: Transaction amount
           example: 100.50
         currency:
           type: string
           pattern: '^[A-Z]{3}$'
-          description: Código da moeda
+          description: Currency code
           example: "BRL"
         description:
           type: string
           maxLength: 500
-          description: Descrição da transação
-          example: "Depósito inicial"
+          description: Transaction description
+          example: "Initial deposit"
 
     TransferRequest:
       allOf:
@@ -528,7 +528,7 @@ components:
             targetUserId:
               type: string
               pattern: '^[a-zA-Z0-9_-]+$'
-              description: ID do usuário de destino
+              description: Target user ID
               example: "user456"
 
     TransferResponse:
@@ -542,11 +542,11 @@ components:
           $ref: '#/components/schemas/Money'
         description:
           type: string
-          example: "Transferência para amigo"
+          example: "Transfer to friend"
         transactionId:
           type: string
           format: uuid
-          description: ID da transação
+          description: Transaction ID
           example: "123e4567-e89b-12d3-a456-426614174000"
 
     BalanceHistoryResponse:
@@ -554,14 +554,14 @@ components:
       properties:
         userId:
           type: string
-          description: ID do usuário
+          description: User ID
           example: "user123"
         balance:
           $ref: '#/components/schemas/Money'
         date:
           type: string
           format: date-time
-          description: Data da consulta
+          description: Query date
           example: "2024-01-15T10:30:00Z"
 
     TransactionListResponse:
@@ -580,28 +580,28 @@ components:
         id:
           type: string
           format: uuid
-          description: ID da transação
+          description: Transaction ID
           example: "123e4567-e89b-12d3-a456-426614174000"
         type:
           type: string
           enum: [DEPOSIT, WITHDRAW, TRANSFER]
-          description: Tipo da transação
+          description: Transaction type
           example: "DEPOSIT"
         amount:
           $ref: '#/components/schemas/Money'
         description:
           type: string
-          description: Descrição da transação
-          example: "Depósito inicial"
+          description: Transaction description
+          example: "Initial deposit"
         transactionDate:
           type: string
           format: date-time
-          description: Data da transação
+          description: Transaction date
           example: "2024-01-15T10:30:00Z"
         status:
           type: string
           enum: [COMPLETED, PENDING, FAILED]
-          description: Status da transação
+          description: Transaction status
           example: "COMPLETED"
 
     PaginationInfo:
@@ -609,19 +609,19 @@ components:
       properties:
         page:
           type: integer
-          description: Página atual
+          description: Current page
           example: 0
         size:
           type: integer
-          description: Tamanho da página
+          description: Page size
           example: 20
         totalElements:
           type: integer
-          description: Total de elementos
+          description: Total elements
           example: 150
         totalPages:
           type: integer
-          description: Total de páginas
+          description: Total pages
           example: 8
 
     ErrorResponse:
@@ -629,24 +629,24 @@ components:
       properties:
         status:
           type: integer
-          description: Código HTTP
+          description: HTTP status code
           example: 400
         error:
           type: string
-          description: Tipo do erro
+          description: Error type
           example: "Bad Request"
         message:
           type: string
-          description: Mensagem de erro
+          description: Error message
           example: "Invalid request parameters"
         timestamp:
           type: string
           format: date-time
-          description: Timestamp do erro
+          description: Error timestamp
           example: "2024-01-15T10:30:00Z"
         details:
           type: object
-          description: Detalhes adicionais do erro
+          description: Additional error details
           additionalProperties:
             type: string
 
@@ -656,11 +656,11 @@ components:
         status:
           type: string
           enum: [UP, DOWN]
-          description: Status do serviço
+          description: Service status
           example: "UP"
         components:
           type: object
-          description: Status dos componentes
+          description: Component statuses
           properties:
             db:
               type: object

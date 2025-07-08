@@ -1,61 +1,61 @@
 # Wallet Service
 
-Um microserviço para gerenciamento de carteiras digitais, permitindo operações de depósito, saque e transferência entre usuários.
+A microservice for managing digital wallets, allowing deposit, withdrawal, and transfer operations between users.
 
-## 🚀 Funcionalidades
+## 🚀 Features
 
-### Funcionais
-- ✅ **Criar Carteira**: Criação de carteiras para usuários
-- ✅ **Consultar Saldo**: Recuperação do saldo atual da carteira
-- ✅ **Histórico de Saldo**: Consulta do saldo em pontos específicos do passado
-- ✅ **Depositar Fundos**: Depósito de dinheiro nas carteiras
-- ✅ **Sacar Fundos**: Saque de dinheiro das carteiras
-- ✅ **Transferir Fundos**: Transferência entre carteiras de usuários
+### Functional
+- ✅ **Create Wallet**: Create wallets for users
+- ✅ **Check Balance**: Retrieve the current wallet balance
+- ✅ **Balance History**: Query the balance at specific points in the past
+- ✅ **Deposit Funds**: Deposit money into wallets
+- ✅ **Withdraw Funds**: Withdraw money from wallets
+- ✅ **Transfer Funds**: Transfer between user wallets
 
-### Não-Funcionais
-- ✅ **Rastreabilidade Completa**: Todos os movimentos são registrados para auditoria
-- ✅ **Alta Disponibilidade**: Configuração para ambiente de produção
-- ✅ **Monitoramento**: Health checks e métricas
-- ✅ **Resiliência**: Circuit breakers e retry policies
+### Non-Functional
+- ✅ **Full Traceability**: All movements are recorded for auditing
+- ✅ **High Availability**: Production-ready configuration
+- ✅ **Monitoring**: Health checks and metrics
+- ✅ **Resilience**: Circuit breakers and retry policies
 
-## 🛠️ Tecnologias
+## 🛠️ Technologies
 
-- **Java 17** - Linguagem principal
-- **Spring Boot 3.2.0** - Framework web
-- **Spring Data JDBC** - Persistência de dados
-- **PostgreSQL** - Banco de dados
-- **Docker & Docker Compose** - Containerização
-- **Flyway** - Migração de banco de dados
-- **Resilience4j** - Padrões de resiliência
-- **Prometheus & Grafana** - Monitoramento
-- **OpenAPI/Swagger** - Documentação da API
+- **Java 17** - Main language
+- **Spring Boot 3.2.0** - Web framework
+- **Spring Data JDBC** - Data persistence
+- **PostgreSQL** - Database
+- **Docker & Docker Compose** - Containerization
+- **Flyway** - Database migration
+- **Resilience4j** - Resilience patterns
+- **Prometheus & Grafana** - Monitoring
+- **OpenAPI/Swagger** - API documentation
 
-## 📋 Pré-requisitos
+## 📋 Prerequisites
 
-- Docker e Docker Compose instalados
-- Mínimo 4GB de RAM disponível
-- Porta 8080 disponível
+- Docker and Docker Compose installed
+- At least 4GB RAM available
+- Port 8080 available
 
-## 🚀 Instalação e Execução
+## 🚀 Installation and Running
 
-### 1. Clone o repositório
+### 1. Clone the repository
 ```bash
 git clone <repository-url>
 cd wallet-service
 ```
 
-### 2. Configure as variáveis de ambiente
+### 2. Configure environment variables
 ```bash
 cp env.example .env
-# Edite o arquivo .env se necessário
+# Edit the .env file if needed
 ```
 
-### 3. Execute o projeto
+### 3. Start the project
 ```bash
 docker-compose up -d
 ```
 
-### 4. Verifique se está funcionando
+### 4. Check if it is running
 ```bash
 curl http://localhost:8080/api/wallets/health
 ```
@@ -64,19 +64,19 @@ curl http://localhost:8080/api/wallets/health
 
 ### Base URL: `http://localhost:8080/api/wallets`
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/health` | Health check do serviço |
-| `POST` | `/` | Criar nova carteira |
-| `GET` | `/{userId}` | Consultar carteira |
-| `POST` | `/{userId}/deposit` | Realizar depósito |
-| `POST` | `/{userId}/withdraw` | Realizar saque |
-| `POST` | `/{userId}/transfer` | Transferir entre carteiras |
-| `GET` | `/{userId}/balance-history` | Histórico de saldo |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Service health check |
+| `POST` | `/` | Create new wallet |
+| `GET` | `/{userId}` | Get wallet |
+| `POST` | `/{userId}/deposit` | Deposit funds |
+| `POST` | `/{userId}/withdraw` | Withdraw funds |
+| `POST` | `/{userId}/transfer` | Transfer between wallets |
+| `GET` | `/{userId}/balance-history` | Balance history |
 
-### Exemplos de Uso
+### Usage Examples
 
-#### 1. Criar Carteira
+#### 1. Create Wallet
 ```bash
 curl -X POST http://localhost:8080/api/wallets \
   -H "Content-Type: application/json" \
@@ -86,12 +86,12 @@ curl -X POST http://localhost:8080/api/wallets \
   }'
 ```
 
-#### 2. Consultar Carteira
+#### 2. Get Wallet
 ```bash
 curl http://localhost:8080/api/wallets/user123
 ```
 
-#### 3. Realizar Depósito
+#### 3. Deposit Funds
 ```bash
 curl -X POST http://localhost:8080/api/wallets/user123/deposit \
   -H "Content-Type: application/json" \
@@ -101,7 +101,7 @@ curl -X POST http://localhost:8080/api/wallets/user123/deposit \
   }'
 ```
 
-#### 4. Realizar Saque
+#### 4. Withdraw Funds
 ```bash
 curl -X POST http://localhost:8080/api/wallets/user123/withdraw \
   -H "Content-Type: application/json" \
@@ -111,7 +111,7 @@ curl -X POST http://localhost:8080/api/wallets/user123/withdraw \
   }'
 ```
 
-#### 5. Transferir Entre Carteiras
+#### 5. Transfer Between Wallets
 ```bash
 curl -X POST http://localhost:8080/api/wallets/user123/transfer \
   -H "Content-Type: application/json" \
@@ -122,41 +122,41 @@ curl -X POST http://localhost:8080/api/wallets/user123/transfer \
   }'
 ```
 
-#### 6. Consultar Histórico de Saldo
+#### 6. Get Balance History
 ```bash
 curl http://localhost:8080/api/wallets/user123/balance-history
 ```
 
-## 🧪 Testes
+## 🧪 Testing
 
-### Executar Testes
+### Run Tests
 ```bash
 docker-compose exec wallet-service mvn test
 ```
 
-### Cobertura de Testes
+### Test Coverage
 ```bash
 docker-compose exec wallet-service mvn jacoco:report
 ```
 
-## 📊 Monitoramento
+## 📊 Monitoring
 
 ### Prometheus
 - URL: http://localhost:9090
-- Métricas disponíveis: transações, saldos, erros, latência
+- Available metrics: transactions, balances, errors, latency
 
 ### Grafana
 - URL: http://localhost:3000
-- Dashboards pré-configurados para monitoramento
+- Pre-configured dashboards for monitoring
 
 ### Health Check
 ```bash
 curl http://localhost:8080/api/wallets/health
 ```
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
-### Padrão Hexagonal (Ports & Adapters)
+### Hexagonal Pattern (Ports & Adapters)
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Application Layer                        │
@@ -173,101 +173,101 @@ curl http://localhost:8080/api/wallets/health
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Componentes Principais
+### Main Components
 
-1. **Domain Layer**: Entidades de negócio (Wallet, Transaction, BalanceHistory)
-2. **Application Layer**: Casos de uso e regras de negócio
+1. **Domain Layer**: Business entities (Wallet, Transaction, BalanceHistory)
+2. **Application Layer**: Use cases and business rules
 3. **Infrastructure Layer**: Controllers, Repositories, Database
 
-## 🔒 Segurança e Rastreabilidade
+## 🔒 Security & Traceability
 
-### Rastreabilidade
-- Cada operação gera um `transactionId` único
-- Histórico completo de saldos registrado
-- Timestamps em todas as operações
-- Logs estruturados para auditoria
+### Traceability
+- Each operation generates a unique `transactionId`
+- Full balance history recorded
+- Timestamps on all operations
+- Structured logs for auditing
 
-### Validações
-- Verificação de saldo suficiente
-- Validação de moeda
-- Verificação de status da carteira
-- Prevenção de transferências para mesma carteira
+### Validations
+- Sufficient balance check
+- Currency validation
+- Wallet status check
+- Prevent transfer to the same wallet
 
-## 📈 Escalabilidade
+## 📈 Scalability
 
-### Estratégias Implementadas
-- **Cache Redis**: Para consultas frequentes
-- **Connection Pooling**: HikariCP para PostgreSQL
-- **Circuit Breakers**: Resilience4j para resiliência
-- **Métricas**: Prometheus para monitoramento
+### Implemented Strategies
+- **Redis Cache**: For frequent queries
+- **Connection Pooling**: HikariCP for PostgreSQL
+- **Circuit Breakers**: Resilience4j for resilience
+- **Metrics**: Prometheus for monitoring
 
-### Possíveis Melhorias
-- **Event Sourcing**: Para auditoria completa
-- **CQRS**: Separação de leitura/escrita
-- **Saga Pattern**: Para transações distribuídas
-- **API Gateway**: Para rate limiting e autenticação
+### Possible Improvements
+- **Event Sourcing**: For full audit
+- **CQRS**: Read/write separation
+- **Saga Pattern**: For distributed transactions
+- **API Gateway**: For rate limiting and authentication
 
-## 🕐 Decisões de Design
+## 🕐 Design Decisions
 
-### 1. Arquitetura Hexagonal
-**Decisão**: Usar Ports & Adapters para desacoplamento
-**Justificativa**: Facilita testes, manutenção e evolução do sistema
+### 1. Hexagonal Architecture
+**Decision**: Use Ports & Adapters for decoupling
+**Rationale**: Facilitates testing, maintenance, and system evolution
 
 ### 2. Spring Data JDBC vs JPA
-**Decisão**: Usar Spring Data JDBC
-**Justificativa**: Mais simples, melhor performance, controle total sobre SQL
+**Decision**: Use Spring Data JDBC
+**Rationale**: Simpler, better performance, full SQL control
 
 ### 3. PostgreSQL
-**Decisão**: Banco relacional PostgreSQL
-**Justificativa**: ACID, confiabilidade, suporte a JSON, open-source
+**Decision**: Relational database PostgreSQL
+**Rationale**: ACID, reliability, JSON support, open-source
 
 ### 4. Value Objects
-**Decisão**: Classe `Money` como value object
-**Justificativa**: Encapsula lógica monetária, imutabilidade, type safety
+**Decision**: `Money` class as value object
+**Rationale**: Encapsulates monetary logic, immutability, type safety
 
-### 5. Histórico de Saldo
-**Decisão**: Tabela separada para histórico
-**Justificativa**: Rastreabilidade completa, auditoria, performance
+### 5. Balance History
+**Decision**: Separate table for history
+**Rationale**: Full traceability, audit, performance
 
-## ⚖️ Trade-offs e Compromissos
+## ⚖️ Trade-offs
 
-### 1. Simplicidade vs Complexidade
-**Compromisso**: Arquitetura simples mas escalável
-**Justificativa**: Projeto de 6-8 horas, mas preparado para produção
+### 1. Simplicity vs Complexity
+**Trade-off**: Simple but scalable architecture
+**Rationale**: 6-8 hour project, but production-ready
 
-### 2. Performance vs Rastreabilidade
-**Compromisso**: Histórico completo impacta performance
-**Justificativa**: Requisito crítico para auditoria financeira
+### 2. Performance vs Traceability
+**Trade-off**: Full history impacts performance
+**Rationale**: Critical requirement for financial audit
 
-### 3. Flexibilidade vs Segurança
-**Compromisso**: Validações rigorosas
-**Justificativa**: Sistema financeiro requer segurança máxima
+### 3. Flexibility vs Security
+**Trade-off**: Strict validations
+**Rationale**: Financial system requires maximum security
 
-### 4. Tecnologia vs Prazo
-**Compromisso**: Stack moderna mas conhecida
-**Justificativa**: Spring Boot é maduro e produtivo
+### 4. Technology vs Deadline
+**Trade-off**: Modern but well-known stack
+**Rationale**: Spring Boot is mature and productive
 
-## 🚨 Assunções
+## 🚨 Assumptions
 
-### 1. Autenticação/Autorização
-**Assunção**: Não implementada (fora do escopo)
-**Justificativa**: Foco nas funcionalidades core do wallet
+### 1. Authentication/Authorization
+**Assumption**: Not implemented (out of scope)
+**Rationale**: Focus on core wallet features
 
-### 2. Moeda Única por Carteira
-**Assunção**: Uma carteira = uma moeda
-**Justificativa**: Simplifica o modelo e evita complexidade de câmbio
+### 2. Single Currency per Wallet
+**Assumption**: One wallet = one currency
+**Rationale**: Simplifies the model and avoids FX complexity
 
-### 3. Transações Síncronas
-**Assunção**: Todas as operações são síncronas
-**Justificativa**: Garante consistência imediata
+### 3. Synchronous Transactions
+**Assumption**: All operations are synchronous
+**Rationale**: Ensures immediate consistency
 
-### 4. Usuário Único por Carteira
-**Assunção**: Relação 1:1 entre usuário e carteira
-**Justificativa**: Modelo simplificado para o escopo
+### 4. One User per Wallet
+**Assumption**: 1:1 relationship between user and wallet
+**Rationale**: Simplified model for the scope
 
-## 📝 Logs e Debugging
+## 📝 Logs & Debugging
 
-### Logs Estruturados
+### Structured Logs
 ```json
 {
   "timestamp": "2024-01-01T10:00:00Z",
@@ -283,23 +283,23 @@ curl http://localhost:8080/api/wallets/health
 
 ### Debugging
 ```bash
-# Ver logs do serviço
+# View service logs
 docker-compose logs -f wallet-service
 
-# Acessar banco de dados
-docker-compose exec postgres psql -U wallet -d wallet_db
+# Access the database
+docker-compose exec postgres psql -U wallet_user -d wallet_db
 ```
 
-## 🔧 Configuração
+## 🔧 Configuration
 
-### Variáveis de Ambiente
+### Environment Variables
 ```bash
 # Database
 DB_HOST=postgres
 DB_PORT=5432
 DB_NAME=wallet_db
-DB_USER=wallet
-DB_PASSWORD=wallet123
+DB_USER=wallet_user
+DB_PASSWORD=wallet_password
 
 # Redis
 REDIS_HOST=redis
@@ -310,50 +310,13 @@ SERVER_PORT=8080
 LOG_LEVEL=INFO
 ```
 
-## 📊 Métricas Disponíveis
+## 📊 Available Metrics
 
-- `wallet_operations_total`: Total de operações
-- `wallet_balance_current`: Saldo atual por usuário
-- `wallet_transactions_duration`: Duração das transações
-- `wallet_errors_total`: Total de erros
+- Transactions count
+- Balance queries
+- Errors
+- Latency
 
-## 🚀 Deploy em Produção
+## 🕒 Time Invested
 
-### 1. Build da Imagem
-```bash
-docker build -t wallet-service:latest .
-```
-
-### 2. Configuração de Produção
-```bash
-# Ajuste as variáveis de ambiente
-# Configure volumes para persistência
-# Configure networks para segurança
-```
-
-### 3. Monitoramento
-```bash
-# Configure alertas no Prometheus
-# Configure dashboards no Grafana
-# Configure logs centralizados
-```
-
-## 📞 Suporte
-
-Para dúvidas ou problemas:
-1. Verifique os logs: `docker-compose logs wallet-service`
-2. Consulte a documentação da API: http://localhost:8080/swagger-ui.html
-3. Verifique o health check: http://localhost:8080/api/wallets/health
-
-## ⏱️ Estimativa de Tempo
-
-**Tempo Investido**: ~6 horas
-- **Setup inicial**: 30 min
-- **Implementação core**: 3 horas
-- **Testes e validação**: 1 hora
-- **Documentação**: 1 hora
-- **Refinamentos**: 30 min
-
----
-
-**Desenvolvido com ❤️ seguindo as melhores práticas de desenvolvimento de software.** 
+Estimated time: 6-8 hours 

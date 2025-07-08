@@ -17,22 +17,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Wallet {
-    
     @Id
     private Long id;
-    
     private String userId;
-    
     @Column("balance_amount")
     private BigDecimal balanceAmount;
-    
     @Column("balance_currency")
     private String balanceCurrency;
-    
     private WalletStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    
     public Wallet(String userId, Money balance) {
         this.userId = userId;
         this.balanceAmount = balance.getAmount();
@@ -41,20 +35,16 @@ public class Wallet {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
-    
     public static Wallet create(String userId, String currency) {
         return new Wallet(userId, Money.zero(currency));
     }
-    
     public Money getBalance() {
         return new Money(balanceAmount, balanceCurrency);
     }
-    
     public void setBalance(Money balance) {
         this.balanceAmount = balance.getAmount();
         this.balanceCurrency = balance.getCurrency();
     }
-    
     public void deposit(Money amount) {
         if (status != WalletStatus.ACTIVE) {
             throw new IllegalStateException("Wallet is not active");
@@ -65,7 +55,6 @@ public class Wallet {
         this.balanceAmount = this.balanceAmount.add(amount.getAmount());
         this.updatedAt = LocalDateTime.now();
     }
-    
     public void withdraw(Money amount) {
         if (status != WalletStatus.ACTIVE) {
             throw new IllegalStateException("Wallet is not active");
@@ -76,7 +65,6 @@ public class Wallet {
         this.balanceAmount = this.balanceAmount.subtract(amount.getAmount());
         this.updatedAt = LocalDateTime.now();
     }
-    
     public void transferTo(Wallet targetWallet, Money amount) {
         if (status != WalletStatus.ACTIVE) {
             throw new IllegalStateException("Source wallet is not active");
@@ -88,29 +76,23 @@ public class Wallet {
             !targetWallet.balanceCurrency.equals(amount.getCurrency())) {
             throw new IllegalArgumentException("Currency mismatch");
         }
-        
         this.withdraw(amount);
         targetWallet.deposit(amount);
     }
-    
     public boolean hasSufficientFunds(Money amount) {
         return this.balanceAmount.compareTo(amount.getAmount()) >= 0;
     }
-    
     public boolean isActive() {
         return status == WalletStatus.ACTIVE;
     }
-    
     public void activate() {
         this.status = WalletStatus.ACTIVE;
         this.updatedAt = LocalDateTime.now();
     }
-    
     public void suspend() {
         this.status = WalletStatus.SUSPENDED;
         this.updatedAt = LocalDateTime.now();
     }
-    
     public void close() {
         this.status = WalletStatus.CLOSED;
         this.updatedAt = LocalDateTime.now();
