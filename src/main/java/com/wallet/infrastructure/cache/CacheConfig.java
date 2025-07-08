@@ -15,7 +15,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import java.time.Duration;
 
 /**
- * Configuração de cache Redis simplificada para o Wallet Service.
+ * Configuração de cache Redis para o Wallet Service.
  */
 @Configuration
 @EnableCaching

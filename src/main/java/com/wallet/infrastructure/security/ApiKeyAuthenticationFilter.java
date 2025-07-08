@@ -46,11 +46,12 @@ public class ApiKeyAuthenticationFilter extends OncePerRequestFilter {
         
         String requestURI = request.getRequestURI();
         
-        // Ignorar autenticação para Swagger e Actuator
+        // Ignorar autenticação para Swagger, Actuator e Auth endpoints
         if (requestURI.startsWith("/swagger-ui") || 
             requestURI.startsWith("/api-docs") || 
             requestURI.startsWith("/v3/api-docs") ||
-            requestURI.startsWith("/actuator")) {
+            requestURI.startsWith("/actuator") ||
+            requestURI.startsWith("/api/v1/auth")) {
             filterChain.doFilter(request, response);
             return;
         }

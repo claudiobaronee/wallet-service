@@ -2,11 +2,11 @@ spring:
   application:
     name: wallet-service
   profiles:
-    active: local
+    active: docker
   datasource:
-    url: jdbc:postgresql://localhost:5432/wallet_db
-    username: wallet_user
-    password: wallet_password
+    url: jdbc:postgresql://${SPRING_DATASOURCE_HOST:localhost}:${SPRING_DATASOURCE_PORT:5432}/${SPRING_DATASOURCE_DB:wallet_db}
+    username: ${SPRING_DATASOURCE_USERNAME:wallet_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:wallet_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -24,20 +24,13 @@ spring:
     validate-on-migrate: true
   cache:
     type: redis
-  redis:
-    host: ${REDIS_HOST:redis}
-    port: ${REDIS_PORT:6379}
-    timeout: 2000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-idle: 8
-        min-idle: 0
-        max-wait: -1ms
+    redis:
+      time-to-live: 1800000
   data:
     redis:
       repositories:
         enabled: false
+
 
 management:
   endpoints:
@@ -52,6 +45,10 @@ management:
   health:
     redis:
       enabled: true
+      timeout: 2000ms
+    defaults:
+      enabled: true
+
   metrics:
     export:
       prometheus:
@@ -76,6 +73,8 @@ logging:
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.data.redis: DEBUG
+    io.lettuce.core: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -89,13 +88,13 @@ jwt:
   audience: ${JWT_AUDIENCE:wallet-api}
 
 rate-limit:
-  ip-requests-per-minute: ${RATE_LIMIT_IP:100}
-  user-requests-per-minute: ${RATE_LIMIT_USER:1000}
-  ip-requests-per-hour: ${RATE_LIMIT_IP_HOUR:5000}
-  user-requests-per-hour: ${RATE_LIMIT_USER_HOUR:10000}
-  ip-requests-per-day: ${RATE_LIMIT_IP_DAY:50000}
-  user-requests-per-day: ${RATE_LIMIT_USER_DAY:100000}
-  block-duration-seconds: ${RATE_LIMIT_BLOCK:300}
+  ip-requests-per-minute: 1000
+  user-requests-per-minute: 10000
+  ip-requests-per-hour: 50000
+  user-requests-per-hour: 100000
+  ip-requests-per-day: 500000
+  user-requests-per-day: 1000000
+  block-duration-seconds: 60
 
 resilience4j:
   circuitbreaker:

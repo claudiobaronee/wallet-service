@@ -68,46 +68,53 @@ git clone <repository-url>
 cd wallet-service
 ```
 
-### 2. Environment Configuration
-
-Create `.env` file:
-
-```env
-# Database
-POSTGRES_DB=wallet_db
-POSTGRES_USER=wallet_user
-POSTGRES_PASSWORD=wallet_password
-
-# Redis
-REDIS_PASSWORD=your-redis-password
-
-# JWT
-JWT_SECRET=your-super-secret-jwt-key-change-in-production
-JWT_EXPIRATION=86400000
-
-# Rate Limiting
-RATE_LIMIT_IP=100
-RATE_LIMIT_USER=1000
-```
-
-### 3. Start All Services
+### 2. Start All Services
 
 ```bash
+# Iniciar todos os serviços
 docker-compose up -d
+
+# Ver logs em tempo real
+docker-compose logs -f
+
+# Verificar status dos serviços
+docker-compose ps
 ```
 
-### 4. Access the Application
+### 3. Access the Application
 
 - **API**: http://localhost:8080
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
+- **Health Check**: http://localhost:8080/actuator/health
 - **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000
+- **Grafana**: http://localhost:3000 (admin/admin)
 
-### 5. Stop Services
+### 4. Stop Services
 
 ```bash
+# Parar todos os serviços
 docker-compose down
+
+# Parar e remover volumes (limpa dados)
+docker-compose down -v
 ```
+
+### 5. Troubleshooting
+
+```bash
+# Ver logs de um serviço específico
+docker-compose logs wallet-service
+
+# Reiniciar um serviço específico
+docker-compose restart wallet-service
+
+# Rebuild e reiniciar
+docker-compose up --build -d
+```
+
+## 🐳 Docker Only
+
+Este projeto é configurado para rodar **apenas com Docker Compose**. Todos os serviços (PostgreSQL, Redis, Prometheus, Grafana) são gerenciados automaticamente.
 
 ## 📚 API Documentation
 

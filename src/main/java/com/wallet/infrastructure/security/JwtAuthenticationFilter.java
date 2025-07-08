@@ -45,6 +45,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                   HttpServletResponse response, 
                                   FilterChain filterChain) throws ServletException, IOException {
         
+        String requestURI = request.getRequestURI();
+        
+        // Ignorar autenticação JWT para endpoints que não precisam de autenticação
+        if (requestURI.startsWith("/swagger-ui") || 
+            requestURI.startsWith("/api-docs") || 
+            requestURI.startsWith("/v3/api-docs") ||
+            requestURI.startsWith("/actuator") ||
+            requestURI.startsWith("/api/v1/auth")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         try {
             String token = extractTokenFromRequest(request);
             
