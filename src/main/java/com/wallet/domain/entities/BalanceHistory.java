@@ -28,6 +28,8 @@ public class BalanceHistory {
     @Column("balance_currency")
     private String balanceCurrency;
     
+    private String description;
+    
     private LocalDateTime recordedAt;
     
     public BalanceHistory(Long walletId, Money balance) {
@@ -37,8 +39,20 @@ public class BalanceHistory {
         this.recordedAt = LocalDateTime.now();
     }
     
+    public BalanceHistory(Long walletId, Money balance, String description) {
+        this.walletId = walletId;
+        this.balanceAmount = balance.getAmount();
+        this.balanceCurrency = balance.getCurrency();
+        this.description = description;
+        this.recordedAt = LocalDateTime.now();
+    }
+    
     public static BalanceHistory create(Long walletId, Money balance) {
         return new BalanceHistory(walletId, balance);
+    }
+    
+    public static BalanceHistory create(Long walletId, Money balance, String description) {
+        return new BalanceHistory(walletId, balance, description);
     }
     
     public Money getBalance() {
@@ -48,5 +62,9 @@ public class BalanceHistory {
     public void setBalance(Money balance) {
         this.balanceAmount = balance.getAmount();
         this.balanceCurrency = balance.getCurrency();
+    }
+    
+    public void setRecordedAt(LocalDateTime recordedAt) {
+        this.recordedAt = recordedAt;
     }
 } 

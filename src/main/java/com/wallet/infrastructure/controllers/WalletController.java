@@ -1,9 +1,11 @@
 package com.wallet.infrastructure.controllers;
 
 import com.wallet.domain.entities.Wallet;
+import com.wallet.domain.entities.BalanceHistory;
 import com.wallet.domain.valueobjects.Money;
 import com.wallet.adapters.infrastructure.repositories.WalletRepositoryImpl;
 import com.wallet.adapters.infrastructure.repositories.BalanceHistoryRepositoryImpl;
+import com.wallet.infrastructure.dto.WalletDTOs;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -37,18 +40,14 @@ public class WalletController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Carteira criada com sucesso",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = CreateWalletResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.CreateWalletResponse.class))),
         @ApiResponse(responseCode = "400", description = "Dados inválidos",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class)))
+                schema = @Schema(implementation = WalletDTOs.ErrorResponse.class)))
     })
     @PostMapping
     public ResponseEntity<Map<String, Object>> createWallet(
-            @Parameter(description = "Dados da carteira", required = true,
-                content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = CreateWalletRequest.class),
-                    examples = @ExampleObject(value = "{\"userId\": \"user123\", \"currency\": \"BRL\"}")))
-            @RequestBody Map<String, String> request) {
+            @RequestBody @Schema(implementation = WalletDTOs.CreateWalletRequest.class) Map<String, String> request) {
         try {
             String userId = request.get("userId");
             String currency = request.getOrDefault("currency", "BRL");
@@ -69,7 +68,8 @@ public class WalletController {
             Wallet savedWallet = walletRepository.save(wallet);
             
             // Registrar histórico de saldo inicial
-            balanceHistoryRepository.save(savedWallet.createBalanceHistory());
+            BalanceHistory initialHistory = BalanceHistory.create(savedWallet.getId(), savedWallet.getBalance(), "Criação da carteira");
+            balanceHistoryRepository.save(initialHistory);
             
             Map<String, Object> response = new HashMap<>();
             response.put("id", savedWallet.getId());
@@ -91,7 +91,7 @@ public class WalletController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Carteira encontrada",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = WalletResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.WalletResponse.class))),
         @ApiResponse(responseCode = "404", description = "Carteira não encontrada")
     })
     @GetMapping("/{userId}")
@@ -123,10 +123,10 @@ public class WalletController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Depósito realizado com sucesso",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = DepositResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.DepositResponse.class))),
         @ApiResponse(responseCode = "400", description = "Dados inválidos ou carteira inativa",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Carteira não encontrada")
     })
     @PostMapping("/{userId}/deposit")
@@ -135,7 +135,7 @@ public class WalletController {
             @PathVariable String userId,
             @Parameter(description = "Dados do depósito", required = true,
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = DepositRequest.class),
+                    schema = @Schema(implementation = WalletDTOs.DepositRequest.class),
                     examples = @ExampleObject(value = "{\"amount\": 100.50, \"currency\": \"BRL\"}")))
             @RequestBody Map<String, Object> request) {
         try {
@@ -150,7 +150,9 @@ public class WalletController {
                             Wallet savedWallet = walletRepository.save(wallet);
                             
                             // Registrar histórico de saldo
-                            balanceHistoryRepository.save(savedWallet.createBalanceHistory());
+                            BalanceHistory depositHistory = BalanceHistory.create(savedWallet.getId(), savedWallet.getBalance(), 
+                                String.format("Depósito de %s %s", amount, currency));
+                            balanceHistoryRepository.save(depositHistory);
                             
                             Map<String, Object> response = new HashMap<>();
                             response.put("message", "Depósito realizado com sucesso");
@@ -177,10 +179,10 @@ public class WalletController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Saque realizado com sucesso",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = WithdrawResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.WithdrawResponse.class))),
         @ApiResponse(responseCode = "400", description = "Dados inválidos, saldo insuficiente ou carteira inativa",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Carteira não encontrada")
     })
     @PostMapping("/{userId}/withdraw")
@@ -189,7 +191,7 @@ public class WalletController {
             @PathVariable String userId,
             @Parameter(description = "Dados do saque", required = true,
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = WithdrawRequest.class),
+                    schema = @Schema(implementation = WalletDTOs.WithdrawRequest.class),
                     examples = @ExampleObject(value = "{\"amount\": 50.25, \"currency\": \"BRL\"}")))
             @RequestBody Map<String, Object> request) {
         try {
@@ -210,7 +212,9 @@ public class WalletController {
                             Wallet savedWallet = walletRepository.save(wallet);
                             
                             // Registrar histórico de saldo
-                            balanceHistoryRepository.save(savedWallet.createBalanceHistory());
+                            BalanceHistory withdrawHistory = BalanceHistory.create(savedWallet.getId(), savedWallet.getBalance(), 
+                                String.format("Saque de %s %s", amount, currency));
+                            balanceHistoryRepository.save(withdrawHistory);
                             
                             Map<String, Object> response = new HashMap<>();
                             response.put("message", "Saque realizado com sucesso");
@@ -237,10 +241,10 @@ public class WalletController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Transferência realizada com sucesso",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = TransferResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.TransferResponse.class))),
         @ApiResponse(responseCode = "400", description = "Dados inválidos, saldo insuficiente ou carteira inativa",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = ErrorResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.ErrorResponse.class))),
         @ApiResponse(responseCode = "404", description = "Carteira não encontrada")
     })
     @PostMapping("/{userId}/transfer")
@@ -249,7 +253,7 @@ public class WalletController {
             @PathVariable String userId,
             @Parameter(description = "Dados da transferência", required = true,
                 content = @Content(mediaType = "application/json",
-                    schema = @Schema(implementation = TransferRequest.class),
+                    schema = @Schema(implementation = WalletDTOs.TransferRequest.class),
                     examples = @ExampleObject(value = "{\"targetUserId\": \"user456\", \"amount\": 25.00, \"currency\": \"BRL\"}")))
             @RequestBody Map<String, Object> request) {
         try {
@@ -289,8 +293,13 @@ public class WalletController {
                                     Wallet savedTargetWallet = walletRepository.save(targetWallet);
                                     
                                     // Registrar histórico de saldo para ambas as carteiras
-                                    balanceHistoryRepository.save(savedSourceWallet.createBalanceHistory());
-                                    balanceHistoryRepository.save(savedTargetWallet.createBalanceHistory());
+                                    BalanceHistory sourceHistory = BalanceHistory.create(savedSourceWallet.getId(), savedSourceWallet.getBalance(), 
+                                        String.format("Transferência enviada de %s %s para %s", amount, currency, targetUserId));
+                                    balanceHistoryRepository.save(sourceHistory);
+                                    
+                                    BalanceHistory targetHistory = BalanceHistory.create(savedTargetWallet.getId(), savedTargetWallet.getBalance(), 
+                                        String.format("Transferência recebida de %s %s de %s", amount, currency, userId));
+                                    balanceHistoryRepository.save(targetHistory);
                                     
                                     Map<String, Object> response = new HashMap<>();
                                     response.put("message", "Transferência realizada com sucesso");
@@ -320,7 +329,7 @@ public class WalletController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Histórico encontrado",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = BalanceHistoryResponse.class))),
+                schema = @Schema(implementation = WalletDTOs.BalanceHistoryResponse.class))),
         @ApiResponse(responseCode = "404", description = "Carteira não encontrada")
     })
     @GetMapping("/{userId}/balance-history")
@@ -336,6 +345,7 @@ public class WalletController {
                                     Map<String, Object> historyEntry = new HashMap<>();
                                     historyEntry.put("balance", record.getBalance().getAmount());
                                     historyEntry.put("currency", record.getBalance().getCurrency());
+                                    historyEntry.put("description", record.getDescription());
                                     historyEntry.put("recordedAt", record.getRecordedAt());
                                     return historyEntry;
                                 })
@@ -360,7 +370,7 @@ public class WalletController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Serviço funcionando",
             content = @Content(mediaType = "application/json",
-                schema = @Schema(implementation = HealthResponse.class)))
+                schema = @Schema(implementation = WalletDTOs.HealthResponse.class)))
     })
     @GetMapping("/health")
     public ResponseEntity<Map<String, Object>> health() {
@@ -370,201 +380,5 @@ public class WalletController {
         response.put("version", "1.0.0");
         response.put("timestamp", System.currentTimeMillis());
         return ResponseEntity.ok(response);
-    }
-
-    // Schemas para documentação OpenAPI
-    @Schema(description = "Request para criar carteira")
-    public static class CreateWalletRequest {
-        @Schema(description = "ID do usuário", example = "user123", required = true)
-        public String userId;
-        
-        @Schema(description = "Moeda da carteira", example = "BRL", defaultValue = "BRL")
-        public String currency;
-    }
-
-    @Schema(description = "Response de carteira criada")
-    public static class CreateWalletResponse {
-        @Schema(description = "ID da carteira", example = "1")
-        public Long id;
-        
-        @Schema(description = "ID do usuário", example = "user123")
-        public String userId;
-        
-        @Schema(description = "Saldo atual", example = "0.00")
-        public BigDecimal balance;
-        
-        @Schema(description = "Moeda", example = "BRL")
-        public String currency;
-        
-        @Schema(description = "Status da carteira", example = "ACTIVE")
-        public String status;
-        
-        @Schema(description = "Mensagem de confirmação", example = "Carteira criada com sucesso")
-        public String message;
-    }
-
-    @Schema(description = "Request para depósito")
-    public static class DepositRequest {
-        @Schema(description = "Valor do depósito", example = "100.50", required = true)
-        public BigDecimal amount;
-        
-        @Schema(description = "Moeda", example = "BRL", defaultValue = "BRL")
-        public String currency;
-    }
-
-    @Schema(description = "Response de depósito")
-    public static class DepositResponse {
-        @Schema(description = "Mensagem de confirmação", example = "Depósito realizado com sucesso")
-        public String message;
-        
-        @Schema(description = "Valor depositado", example = "100.50")
-        public BigDecimal amount;
-        
-        @Schema(description = "Moeda", example = "BRL")
-        public String currency;
-        
-        @Schema(description = "Novo saldo", example = "100.50")
-        public BigDecimal newBalance;
-        
-        @Schema(description = "ID da transação", example = "1704067200000")
-        public Long transactionId;
-    }
-
-    @Schema(description = "Request para saque")
-    public static class WithdrawRequest {
-        @Schema(description = "Valor do saque", example = "50.25", required = true)
-        public BigDecimal amount;
-        
-        @Schema(description = "Moeda", example = "BRL", defaultValue = "BRL")
-        public String currency;
-    }
-
-    @Schema(description = "Response de saque")
-    public static class WithdrawResponse {
-        @Schema(description = "Mensagem de confirmação", example = "Saque realizado com sucesso")
-        public String message;
-        
-        @Schema(description = "Valor sacado", example = "50.25")
-        public BigDecimal amount;
-        
-        @Schema(description = "Moeda", example = "BRL")
-        public String currency;
-        
-        @Schema(description = "Novo saldo", example = "50.25")
-        public BigDecimal newBalance;
-        
-        @Schema(description = "ID da transação", example = "1704067200000")
-        public Long transactionId;
-    }
-
-    @Schema(description = "Request para transferência")
-    public static class TransferRequest {
-        @Schema(description = "ID do usuário destino", example = "user456", required = true)
-        public String targetUserId;
-        
-        @Schema(description = "Valor da transferência", example = "25.00", required = true)
-        public BigDecimal amount;
-        
-        @Schema(description = "Moeda", example = "BRL", defaultValue = "BRL")
-        public String currency;
-    }
-
-    @Schema(description = "Response de transferência")
-    public static class TransferResponse {
-        @Schema(description = "Mensagem de confirmação", example = "Transferência realizada com sucesso")
-        public String message;
-        
-        @Schema(description = "Valor transferido", example = "25.00")
-        public BigDecimal amount;
-        
-        @Schema(description = "Moeda", example = "BRL")
-        public String currency;
-        
-        @Schema(description = "ID do usuário origem", example = "user123")
-        public String sourceUserId;
-        
-        @Schema(description = "ID do usuário destino", example = "user456")
-        public String targetUserId;
-        
-        @Schema(description = "Novo saldo da carteira origem", example = "75.00")
-        public BigDecimal sourceNewBalance;
-        
-        @Schema(description = "Novo saldo da carteira destino", example = "25.00")
-        public BigDecimal targetNewBalance;
-        
-        @Schema(description = "ID da transação", example = "1704067200000")
-        public Long transactionId;
-    }
-
-    @Schema(description = "Response de carteira")
-    public static class WalletResponse {
-        @Schema(description = "ID da carteira", example = "1")
-        public Long id;
-        
-        @Schema(description = "ID do usuário", example = "user123")
-        public String userId;
-        
-        @Schema(description = "Saldo atual", example = "100.50")
-        public BigDecimal balance;
-        
-        @Schema(description = "Moeda", example = "BRL")
-        public String currency;
-        
-        @Schema(description = "Status da carteira", example = "ACTIVE")
-        public String status;
-        
-        @Schema(description = "Data de criação", example = "2024-01-01T10:00:00")
-        public String createdAt;
-        
-        @Schema(description = "Data de atualização", example = "2024-01-01T10:00:00")
-        public String updatedAt;
-    }
-
-    @Schema(description = "Response de histórico de saldo")
-    public static class BalanceHistoryResponse {
-        @Schema(description = "ID do usuário", example = "user123")
-        public String userId;
-        
-        @Schema(description = "Saldo atual", example = "100.50")
-        public BigDecimal currentBalance;
-        
-        @Schema(description = "Moeda", example = "BRL")
-        public String currency;
-        
-        @Schema(description = "Histórico de saldos")
-        public List<BalanceHistoryEntry> history;
-    }
-
-    @Schema(description = "Entrada do histórico de saldo")
-    public static class BalanceHistoryEntry {
-        @Schema(description = "Saldo", example = "100.50")
-        public BigDecimal balance;
-        
-        @Schema(description = "Moeda", example = "BRL")
-        public String currency;
-        
-        @Schema(description = "Data do registro", example = "2024-01-01T10:00:00")
-        public String recordedAt;
-    }
-
-    @Schema(description = "Response de health check")
-    public static class HealthResponse {
-        @Schema(description = "Status do serviço", example = "UP")
-        public String status;
-        
-        @Schema(description = "Nome do serviço", example = "wallet-service")
-        public String service;
-        
-        @Schema(description = "Versão", example = "1.0.0")
-        public String version;
-        
-        @Schema(description = "Timestamp", example = "1704067200000")
-        public Long timestamp;
-    }
-
-    @Schema(description = "Response de erro")
-    public static class ErrorResponse {
-        @Schema(description = "Mensagem de erro", example = "Saldo insuficiente")
-        public String error;
     }
 } 

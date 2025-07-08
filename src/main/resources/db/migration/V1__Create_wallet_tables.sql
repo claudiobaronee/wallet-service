@@ -33,6 +33,7 @@ CREATE TABLE balance_history (
     wallet_id BIGINT NOT NULL,
     balance_amount DECIMAL(19,2) NOT NULL,
     balance_currency VARCHAR(3) NOT NULL DEFAULT 'BRL',
+    description VARCHAR(255),
     recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (wallet_id) REFERENCES wallets(id)
 );
@@ -60,21 +61,4 @@ $$ language 'plpgsql';
 CREATE TRIGGER update_wallets_updated_at 
     BEFORE UPDATE ON wallets 
     FOR EACH ROW 
-    EXECUTE FUNCTION update_updated_at_column();
-
--- Trigger para registrar histórico de saldo
-CREATE OR REPLACE FUNCTION record_balance_history()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF OLD.balance_amount != NEW.balance_amount OR OLD.balance_currency != NEW.balance_currency THEN
-        INSERT INTO balance_history (wallet_id, balance_amount, balance_currency, recorded_at)
-        VALUES (NEW.id, NEW.balance_amount, NEW.balance_currency, CURRENT_TIMESTAMP);
-    END IF;
-    RETURN NEW;
-END;
-$$ language 'plpgsql';
-
-CREATE TRIGGER trigger_balance_history 
-    AFTER UPDATE ON wallets 
-    FOR EACH ROW 
-    EXECUTE FUNCTION record_balance_history(); 
+    EXECUTE FUNCTION update_updated_at_column(); 

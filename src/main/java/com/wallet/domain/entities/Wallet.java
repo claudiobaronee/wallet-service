@@ -115,13 +115,4 @@ public class Wallet {
         this.status = WalletStatus.CLOSED;
         this.updatedAt = LocalDateTime.now();
     }
-    
-    /**
-     * Cria um registro de histórico de saldo para rastreabilidade
-     * 
-     * @return BalanceHistory com o saldo atual
-     */
-    public BalanceHistory createBalanceHistory() {
-        return new BalanceHistory(this.id, this.getBalance());
-    }
 } 
