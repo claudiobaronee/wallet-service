@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/wallet_db
+    username: wallet_user
+    password: wallet_password
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    com.wallet: INFO
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n" 

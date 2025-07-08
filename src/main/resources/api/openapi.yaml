@@ -1,0 +1,678 @@
+openapi: 3.0.3
+info:
+  title: Wallet Service API
+  description: |
+    Microserviço de carteira digital com arquitetura hexagonal e event-driven design.
+    
+    ## Funcionalidades
+    - Criar e gerenciar carteiras digitais
+    - Realizar operações financeiras (depósito, saque, transferência)
+    - Consultar saldos e histórico
+    - Auditoria completa de transações
+    
+    ## Autenticação
+    Esta API utiliza autenticação via API Key no header `X-API-Key`.
+    
+    ## Rate Limiting
+    - 100 requests por minuto por IP
+    - 1000 requests por hora por usuário
+    
+    ## Versionamento
+    - Versão atual: v1
+    - Endpoints versionados: `/api/v1/*`
+  version: 1.0.0
+  contact:
+    name: Wallet Service Team
+    email: wallet-service@company.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Ambiente de desenvolvimento
+  - url: https://api.wallet-service.com
+    description: Ambiente de produção
+
+tags:
+  - name: Wallets
+    description: Operações de carteira
+  - name: Transactions
+    description: Operações financeiras
+  - name: Balance
+    description: Consultas de saldo
+  - name: Health
+    description: Monitoramento e saúde
+
+paths:
+  /api/v1/wallets:
+    post:
+      tags:
+        - Wallets
+      summary: Criar nova carteira
+      description: Cria uma nova carteira digital para um usuário
+      operationId: createWallet
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWalletRequest'
+            examples:
+              brl_wallet:
+                summary: Carteira em Real
+                value:
+                  userId: "user123"
+                  currency: "BRL"
+              usd_wallet:
+                summary: Carteira em Dólar
+                value:
+                  userId: "user456"
+                  currency: "USD"
+      responses:
+        '201':
+          description: Carteira criada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletResponse'
+              example:
+                id: 1
+                userId: "user123"
+                balance:
+                  amount: 0.00
+                  currency: "BRL"
+                status: "ACTIVE"
+                createdAt: "2024-01-15T10:30:00Z"
+                updatedAt: "2024-01-15T10:30:00Z"
+        '400':
+          description: Dados inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Carteira já existe para o usuário
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit excedido
+        '500':
+          description: Erro interno do servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/wallets/{userId}:
+    get:
+      tags:
+        - Wallets
+      summary: Consultar carteira
+      description: Retorna os dados da carteira de um usuário
+      operationId: getWallet
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: string
+            pattern: '^[a-zA-Z0-9_-]+$'
+            example: "user123"
+      responses:
+        '200':
+          description: Carteira encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletResponse'
+        '404':
+          description: Carteira não encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit excedido
+        '500':
+          description: Erro interno do servidor
+
+  /api/v1/wallets/{userId}/deposit:
+    post:
+      tags:
+        - Transactions
+      summary: Depositar fundos
+      description: Realiza depósito de fundos na carteira
+      operationId: depositMoney
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: string
+            example: "user123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+            example:
+              amount: 100.50
+              currency: "BRL"
+              description: "Depósito inicial"
+      responses:
+        '200':
+          description: Depósito realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletResponse'
+        '400':
+          description: Dados inválidos ou moeda incompatível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Carteira não encontrada
+        '422':
+          description: Carteira não está ativa
+        '429':
+          description: Rate limit excedido
+        '500':
+          description: Erro interno do servidor
+
+  /api/v1/wallets/{userId}/withdraw:
+    post:
+      tags:
+        - Transactions
+      summary: Sacar fundos
+      description: Realiza saque de fundos da carteira
+      operationId: withdrawMoney
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: string
+            example: "user123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+            example:
+              amount: 50.00
+              currency: "BRL"
+              description: "Saque para pagamento"
+      responses:
+        '200':
+          description: Saque realizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WalletResponse'
+        '400':
+          description: Dados inválidos ou moeda incompatível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Carteira não encontrada
+        '422':
+          description: Saldo insuficiente ou carteira não ativa
+        '429':
+          description: Rate limit excedido
+        '500':
+          description: Erro interno do servidor
+
+  /api/v1/wallets/{userId}/transfer:
+    post:
+      tags:
+        - Transactions
+      summary: Transferir fundos
+      description: Transfere fundos entre carteiras
+      operationId: transferMoney
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário de origem
+          schema:
+            type: string
+            example: "user123"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+            example:
+              amount: 25.00
+              currency: "BRL"
+              description: "Transferência para amigo"
+              targetUserId: "user456"
+      responses:
+        '200':
+          description: Transferência realizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResponse'
+        '400':
+          description: Dados inválidos ou moeda incompatível
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Carteira de origem ou destino não encontrada
+        '422':
+          description: Saldo insuficiente ou carteira não ativa
+        '429':
+          description: Rate limit excedido
+        '500':
+          description: Erro interno do servidor
+
+  /api/v1/wallets/{userId}/balance/history:
+    get:
+      tags:
+        - Balance
+      summary: Consultar saldo histórico
+      description: Retorna o saldo da carteira em uma data específica
+      operationId: getBalanceHistory
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: string
+            example: "user123"
+        - name: date
+          in: query
+          required: true
+          description: Data para consulta do saldo
+          schema:
+            type: string
+            format: date-time
+            example: "2024-01-15T10:30:00Z"
+      responses:
+        '200':
+          description: Saldo histórico retornado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceHistoryResponse'
+              example:
+                userId: "user123"
+                balance:
+                  amount: 75.50
+                  currency: "BRL"
+                date: "2024-01-15T10:30:00Z"
+        '404':
+          description: Carteira não encontrada
+        '429':
+          description: Rate limit excedido
+        '500':
+          description: Erro interno do servidor
+
+  /api/v1/wallets/{userId}/transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Listar transações
+      description: Retorna o histórico de transações da carteira
+      operationId: getTransactions
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: ID do usuário
+          schema:
+            type: string
+            example: "user123"
+        - name: page
+          in: query
+          description: Número da página
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+        - name: size
+          in: query
+          description: Tamanho da página
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: type
+          in: query
+          description: Filtrar por tipo de transação
+          schema:
+            type: string
+            enum: [DEPOSIT, WITHDRAW, TRANSFER]
+      responses:
+        '200':
+          description: Lista de transações
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionListResponse'
+        '404':
+          description: Carteira não encontrada
+        '429':
+          description: Rate limit excedido
+        '500':
+          description: Erro interno do servidor
+
+  /actuator/health:
+    get:
+      tags:
+        - Health
+      summary: Health Check
+      description: Verifica a saúde do serviço
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Serviço saudável
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: Serviço não saudável
+
+  /actuator/prometheus:
+    get:
+      tags:
+        - Health
+      summary: Métricas Prometheus
+      description: Retorna métricas no formato Prometheus
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Métricas retornadas
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API Key para autenticação
+
+  schemas:
+    CreateWalletRequest:
+      type: object
+      required:
+        - userId
+        - currency
+      properties:
+        userId:
+          type: string
+          pattern: '^[a-zA-Z0-9_-]+$'
+          description: ID único do usuário
+          example: "user123"
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: Código da moeda (ISO 4217)
+          example: "BRL"
+      additionalProperties: false
+
+    WalletResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID da carteira
+          example: 1
+        userId:
+          type: string
+          description: ID do usuário
+          example: "user123"
+        balance:
+          $ref: '#/components/schemas/Money'
+        status:
+          type: string
+          enum: [ACTIVE, SUSPENDED, CLOSED]
+          description: Status da carteira
+          example: "ACTIVE"
+        createdAt:
+          type: string
+          format: date-time
+          description: Data de criação
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Data da última atualização
+          example: "2024-01-15T10:30:00Z"
+
+    Money:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: decimal
+          minimum: 0
+          description: Valor monetário
+          example: 100.50
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: Código da moeda
+          example: "BRL"
+
+    TransactionRequest:
+      type: object
+      required:
+        - amount
+        - currency
+      properties:
+        amount:
+          type: number
+          format: decimal
+          minimum: 0.01
+          description: Valor da transação
+          example: 100.50
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+          description: Código da moeda
+          example: "BRL"
+        description:
+          type: string
+          maxLength: 500
+          description: Descrição da transação
+          example: "Depósito inicial"
+
+    TransferRequest:
+      allOf:
+        - $ref: '#/components/schemas/TransactionRequest'
+        - type: object
+          required:
+            - targetUserId
+          properties:
+            targetUserId:
+              type: string
+              pattern: '^[a-zA-Z0-9_-]+$'
+              description: ID do usuário de destino
+              example: "user456"
+
+    TransferResponse:
+      type: object
+      properties:
+        sourceWallet:
+          $ref: '#/components/schemas/WalletResponse'
+        targetWallet:
+          $ref: '#/components/schemas/WalletResponse'
+        amount:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+          example: "Transferência para amigo"
+        transactionId:
+          type: string
+          format: uuid
+          description: ID da transação
+          example: "123e4567-e89b-12d3-a456-426614174000"
+
+    BalanceHistoryResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: ID do usuário
+          example: "user123"
+        balance:
+          $ref: '#/components/schemas/Money'
+        date:
+          type: string
+          format: date-time
+          description: Data da consulta
+          example: "2024-01-15T10:30:00Z"
+
+    TransactionListResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionResponse'
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID da transação
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        type:
+          type: string
+          enum: [DEPOSIT, WITHDRAW, TRANSFER]
+          description: Tipo da transação
+          example: "DEPOSIT"
+        amount:
+          $ref: '#/components/schemas/Money'
+        description:
+          type: string
+          description: Descrição da transação
+          example: "Depósito inicial"
+        transactionDate:
+          type: string
+          format: date-time
+          description: Data da transação
+          example: "2024-01-15T10:30:00Z"
+        status:
+          type: string
+          enum: [COMPLETED, PENDING, FAILED]
+          description: Status da transação
+          example: "COMPLETED"
+
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Página atual
+          example: 0
+        size:
+          type: integer
+          description: Tamanho da página
+          example: 20
+        totalElements:
+          type: integer
+          description: Total de elementos
+          example: 150
+        totalPages:
+          type: integer
+          description: Total de páginas
+          example: 8
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Código HTTP
+          example: 400
+        error:
+          type: string
+          description: Tipo do erro
+          example: "Bad Request"
+        message:
+          type: string
+          description: Mensagem de erro
+          example: "Invalid request parameters"
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp do erro
+          example: "2024-01-15T10:30:00Z"
+        details:
+          type: object
+          description: Detalhes adicionais do erro
+          additionalProperties:
+            type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+          description: Status do serviço
+          example: "UP"
+        components:
+          type: object
+          description: Status dos componentes
+          properties:
+            db:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [UP, DOWN]
+                  example: "UP"
+            disk:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [UP, DOWN]
+                  example: "UP" 
