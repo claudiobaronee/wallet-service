@@ -2,12 +2,61 @@
 	"info": {
 		"_postman_id": "12345678-1234-1234-1234-123456789012",
 		"name": "Wallet Service API",
-		"description": "Collection completa para testar o microserviço de carteira digital\n\nFuncionalidades:\n- Criar carteira\n- Consultar saldo\n- Realizar depósitos\n- Realizar saques\n- Transferir entre carteiras\n- Consultar histórico de saldo\n- Health check\n\nBase URL: http://localhost:8080",
+		"description": "Collection simples para testar o microserviço de carteira digital\n\nComo usar:\n1. Execute 'Login' para obter token\n2. Execute os outros endpoints na sequência\n3. Os tokens são copiados automaticamente\n\nBase URL: http://localhost:8080",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "user1",
+			"type": "string"
+		},
+		{
+			"key": "password",
+			"value": "user123",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "user1",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		}
+	],
 	"item": [
 		{
-			"name": "Health Check",
+			"name": "1. Health Check",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Serviço está funcionando', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    console.log('🎉 Serviço está rodando!');",
+							"}"
+						]
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -27,96 +76,88 @@
 			"response": []
 		},
 		{
-			"name": "Autenticação",
-			"item": [
+			"name": "2. Login",
+			"event": [
 				{
-					"name": "Login",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"user1\",\n    \"password\": \"user123\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/auth/login",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"login"
-							]
-						},
-						"description": "Fazer login e obter token JWT"
-					},
-					"response": []
-				},
-				{
-					"name": "Validar Token",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/auth/validate",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"validate"
-							]
-						},
-						"description": "Validar se o token JWT é válido"
-					},
-					"response": []
-				},
-				{
-					"name": "Renovar Token",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/auth/refresh",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"auth",
-								"refresh"
-							]
-						},
-						"description": "Renovar o token de acesso usando refresh token"
-					},
-					"response": []
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Login realizado com sucesso', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    ",
+							"    // Salvar tokens automaticamente",
+							"    pm.collectionVariables.set('access_token', response.accessToken);",
+							"    pm.collectionVariables.set('refresh_token', response.refreshToken);",
+							"    ",
+							"    console.log('🔑 Token salvo automaticamente!');",
+							"    console.log('👤 Usuário:', response.username);",
+							"    console.log('🔐 Token válido até:', new Date(Date.now() + 3600000).toLocaleString());",
+							"    ",
+							"    // Mostrar próximo passo",
+							"    console.log('➡️  Próximo: Execute \"3. Criar Carteira\"');",
+							"} else {",
+							"    console.log('❌ Erro no login. Verifique username/password.');",
+							"}"
+						]
+					}
 				}
 			],
-			"description": "Endpoints de autenticação e autorização"
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"{{username}}\",\n    \"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/auth/login",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"login"
+					]
+				},
+				"description": "Fazer login e obter token JWT (execute primeiro!)"
+			},
+			"response": []
 		},
 		{
-			"name": "Criar Carteira",
+			"name": "3. Criar Carteira",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Carteira criada com sucesso', function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"if (pm.response.code === 201) {",
+							"    const response = pm.response.json();",
+							"    console.log('💳 Carteira criada!');",
+							"    console.log('💰 Saldo inicial: R$ 0,00');",
+							"    console.log('➡️  Próximo: Execute \"4. Realizar Depósito\"');",
+							"} else {",
+							"    console.log('❌ Erro ao criar carteira. Verifique se fez login.');",
+							"}"
+						]
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [
@@ -131,7 +172,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"userId\": \"user123\",\n    \"currency\": \"BRL\"\n}"
+					"raw": "{\n    \"userId\": \"{{userId}}\",\n    \"currency\": \"BRL\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/wallets",
@@ -143,37 +184,34 @@
 						"wallets"
 					]
 				},
-				"description": "Cria uma nova carteira para um usuário"
+				"description": "Cria uma nova carteira para o usuário"
 			},
 			"response": []
 		},
 		{
-			"name": "Consultar Carteira",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{access_token}}"
+			"name": "4. Realizar Depósito",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Depósito realizado com sucesso', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    console.log('💰 Depósito de R$ ' + response.amount + ' realizado!');",
+							"    console.log('💳 Novo saldo: R$ ' + response.newBalance);",
+							"    console.log('➡️  Próximo: Execute \"5. Consultar Carteira\" ou \"6. Realizar Saque\"');",
+							"} else {",
+							"    console.log('❌ Erro no depósito.');",
+							"}"
+						]
 					}
-				],
-				"url": {
-					"raw": "{{base_url}}/api/wallets/{{userId}}",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"api",
-						"wallets",
-						"{{userId}}"
-					]
-				},
-				"description": "Consulta os detalhes de uma carteira"
-			},
-			"response": []
-		},
-		{
-			"name": "Realizar Depósito",
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [
@@ -202,12 +240,82 @@
 						"deposit"
 					]
 				},
-				"description": "Realiza um depósito na carteira do usuário"
+				"description": "Realiza um depósito de R$ 100,50 na carteira"
 			},
 			"response": []
 		},
 		{
-			"name": "Realizar Saque",
+			"name": "5. Consultar Carteira",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Carteira consultada com sucesso', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    console.log('💳 Carteira do usuário: ' + response.userId);",
+							"    console.log('💰 Saldo atual: R$ ' + response.balance);",
+							"    console.log('📊 Status: ' + response.status);",
+							"    console.log('➡️  Próximo: Execute \"6. Realizar Saque\" ou \"7. Transferir\"');",
+							"} else {",
+							"    console.log('❌ Erro ao consultar carteira.');",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/wallets/{{userId}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets",
+						"{{userId}}"
+					]
+				},
+				"description": "Consulta os detalhes da carteira"
+			},
+			"response": []
+		},
+		{
+			"name": "6. Realizar Saque",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Saque realizado com sucesso', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    console.log('💸 Saque de R$ ' + response.amount + ' realizado!');",
+							"    console.log('💳 Novo saldo: R$ ' + response.newBalance);",
+							"    console.log('➡️  Próximo: Execute \"7. Transferir\" ou \"8. Histórico\"');",
+							"} else {",
+							"    console.log('❌ Erro no saque. Verifique se tem saldo suficiente.');",
+							"}"
+						]
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [
@@ -222,7 +330,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"amount\": 50.25,\n    \"currency\": \"BRL\",\n    \"description\": \"Saque para pagamento\"\n}"
+					"raw": "{\n    \"amount\": 25.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Saque teste\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/wallets/{{userId}}/withdraw",
@@ -236,12 +344,35 @@
 						"withdraw"
 					]
 				},
-				"description": "Realiza um saque da carteira do usuário"
+				"description": "Realiza um saque de R$ 25,00 da carteira"
 			},
 			"response": []
 		},
 		{
-			"name": "Transferir Entre Carteiras",
+			"name": "7. Transferir entre Carteiras",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Transferência realizada com sucesso', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    console.log('💸 Transferência de R$ ' + response.amount + ' realizada!');",
+							"    console.log('👤 De: ' + response.sourceUserId + ' → Para: ' + response.targetUserId);",
+							"    console.log('💳 Seu novo saldo: R$ ' + response.sourceNewBalance);",
+							"    console.log('➡️  Próximo: Execute \"8. Consultar Histórico\"');",
+							"} else {",
+							"    console.log('❌ Erro na transferência. Verifique se tem saldo suficiente.');",
+							"}"
+						]
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [
@@ -256,7 +387,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"targetUserId\": \"user456\",\n    \"amount\": 25.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Transferência para pagamento\"\n}"
+					"raw": "{\n    \"targetUserId\": \"user2\",\n    \"amount\": 30.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Transferência teste\"\n}"
 				},
 				"url": {
 					"raw": "{{base_url}}/api/wallets/{{userId}}/transfer",
@@ -270,12 +401,35 @@
 						"transfer"
 					]
 				},
-				"description": "Transfere dinheiro entre carteiras de usuários"
+				"description": "Transfere R$ 30,00 para o usuário 'user2'"
 			},
 			"response": []
 		},
 		{
-			"name": "Consultar Histórico de Saldo",
+			"name": "8. Consultar Histórico de Saldo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('✅ Histórico consultado com sucesso', function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"if (pm.response.code === 200) {",
+							"    const response = pm.response.json();",
+							"    console.log('📊 Histórico da carteira: ' + response.userId);",
+							"    console.log('💰 Saldo atual: R$ ' + response.currentBalance);",
+							"    console.log('📈 Total de movimentações: ' + response.history.length);",
+							"    console.log('🎉 Fluxo completo finalizado!');",
+							"} else {",
+							"    console.log('❌ Erro ao consultar histórico.');",
+							"}"
+						]
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -296,15 +450,37 @@
 						"balance-history"
 					]
 				},
-				"description": "Consulta o histórico de saldo de uma carteira"
+				"description": "Consulta o histórico completo de saldo da carteira"
 			},
 			"response": []
 		},
 		{
-			"name": "Testes de Validação",
+			"name": "🔧 Utilitários",
 			"item": [
 				{
-					"name": "Criar Carteira - userId inválido",
+					"name": "Renovar Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('✅ Token renovado com sucesso', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.collectionVariables.set('access_token', response.accessToken);",
+									"    console.log('🔄 Token renovado automaticamente!');",
+									"    console.log('🔐 Novo token válido até:', new Date(Date.now() + 3600000).toLocaleString());",
+									"} else {",
+									"    console.log('❌ Erro ao renovar token. Faça login novamente.');",
+									"}"
+								]
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
@@ -315,446 +491,74 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"userId\": \"\",\n    \"currency\": \"BRL\"\n}"
+							"raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/wallets",
+							"raw": "{{base_url}}/api/auth/refresh",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
-								"wallets"
+								"auth",
+								"refresh"
 							]
 						},
-						"description": "Testa validação de userId vazio"
+						"description": "Renova o token de acesso (use se o token expirar)"
 					},
 					"response": []
 				},
 				{
-					"name": "Criar Carteira - currency inválida",
+					"name": "Validar Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('✅ Token é válido', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    if (response.valid) {",
+									"        console.log('✅ Token está válido!');",
+									"    } else {",
+									"        console.log('❌ Token expirado. Faça login novamente.');",
+									"    }",
+									"} else {",
+									"    console.log('❌ Erro ao validar token.');",
+									"}"
+								]
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [
 							{
-								"key": "Content-Type",
-								"value": "application/json"
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"userId\": \"user123\",\n    \"currency\": \"INVALID\"\n}"
-						},
 						"url": {
-							"raw": "{{base_url}}/api/wallets",
+							"raw": "{{base_url}}/api/auth/validate",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"api",
-								"wallets"
+								"auth",
+								"validate"
 							]
 						},
-						"description": "Testa validação de currency inválida"
-					},
-					"response": []
-				},
-				{
-					"name": "Depósito - amount inválido",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"amount\": -10.00,\n    \"currency\": \"BRL\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/wallets/{{userId}}/deposit",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"wallets",
-								"{{userId}}",
-								"deposit"
-							]
-						},
-						"description": "Testa validação de amount negativo"
-					},
-					"response": []
-				},
-				{
-					"name": "Saque - saldo insuficiente",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"amount\": 1000.00,\n    \"currency\": \"BRL\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/wallets/{{userId}}/withdraw",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"wallets",
-								"{{userId}}",
-								"withdraw"
-							]
-						},
-						"description": "Testa saque com saldo insuficiente"
-					},
-					"response": []
-				},
-				{
-					"name": "Transferência - mesma carteira",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"targetUserId\": \"{{userId}}\",\n    \"amount\": 25.00,\n    \"currency\": \"BRL\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/wallets/{{userId}}/transfer",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"wallets",
-								"{{userId}}",
-								"transfer"
-							]
-						},
-						"description": "Testa transferência para a mesma carteira"
+						"description": "Verifica se o token atual é válido"
 					},
 					"response": []
 				}
 			],
-			"description": "Testes de validação e cenários de erro"
-		},
-		{
-			"name": "Cenários de Teste",
-			"item": [
-				{
-					"name": "Fluxo Completo - Usuário 1",
-					"item": [
-						{
-							"name": "1. Criar carteira user1",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"userId\": \"user1\",\n    \"currency\": \"BRL\"\n}"
-								},
-								"url": {
-									"raw": "{{base_url}}/api/wallets",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "2. Depositar 500 BRL",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"amount\": 500.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Depósito inicial\"\n}"
-								},
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user1/deposit",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user1",
-										"deposit"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "3. Consultar saldo",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user1",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user1"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"description": "Fluxo completo para o usuário 1"
-				},
-				{
-					"name": "Fluxo Completo - Usuário 2",
-					"item": [
-						{
-							"name": "1. Criar carteira user2",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"userId\": \"user2\",\n    \"currency\": \"BRL\"\n}"
-								},
-								"url": {
-									"raw": "{{base_url}}/api/wallets",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "2. Depositar 300 BRL",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"amount\": 300.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Depósito inicial\"\n}"
-								},
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user2/deposit",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user2",
-										"deposit"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"description": "Fluxo completo para o usuário 2"
-				},
-				{
-					"name": "Transferência Entre Usuários",
-					"item": [
-						{
-							"name": "1. Transferir 100 BRL de user1 para user2",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"targetUserId\": \"user2\",\n    \"amount\": 100.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Transferência de pagamento\"\n}"
-								},
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user1/transfer",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user1",
-										"transfer"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "2. Consultar saldo user1",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user1",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user1"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "3. Consultar saldo user2",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user2",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user2"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "4. Consultar histórico user1",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user1/balance-history",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user1",
-										"balance-history"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "5. Consultar histórico user2",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{base_url}}/api/wallets/user2/balance-history",
-									"host": [
-										"{{base_url}}"
-									],
-									"path": [
-										"api",
-										"wallets",
-										"user2",
-										"balance-history"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"description": "Teste completo de transferência entre usuários"
-				}
-			],
-			"description": "Cenários de teste completos"
-		}
-	],
-	"event": [
-		{
-			"listen": "prerequest",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		},
-		{
-			"listen": "test",
-			"script": {
-				"type": "text/javascript",
-				"exec": [
-					""
-				]
-			}
-		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "userId",
-			"value": "user123",
-			"type": "string"
-		},
-		{
-			"key": "access_token",
-			"value": "",
-			"type": "string"
-		},
-		{
-			"key": "refresh_token",
-			"value": "",
-			"type": "string"
+			"description": "Ferramentas úteis para gerenciar tokens"
 		}
 	]
 } 
