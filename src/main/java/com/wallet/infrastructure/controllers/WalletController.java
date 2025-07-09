@@ -46,7 +46,6 @@ public class WalletController {
         auditService.logOperation("CREATE_WALLET", request.getUserId(), 
                 "Creating wallet with currency: " + request.getCurrency(), correlationId);
         
-        // Verificar se a carteira já existe
         if (walletRepository.findByUserId(request.getUserId()).isPresent()) {
             auditService.logError("CREATE_WALLET", request.getUserId(), 
                     "Wallet already exists", correlationId);
@@ -122,7 +121,6 @@ public class WalletController {
                         wallet.deposit(money);
                         Wallet savedWallet = walletRepository.save(wallet);
                         
-                        // Registrar histórico de saldo
                         String description = request.getDescription() != null ? 
                             request.getDescription() : 
                             String.format("Depósito de %s %s", request.getAmount(), request.getCurrency());
@@ -183,7 +181,6 @@ public class WalletController {
                         wallet.withdraw(money);
                         Wallet savedWallet = walletRepository.save(wallet);
                         
-                        // Registrar histórico de saldo
                         String description = request.getDescription() != null ? 
                             request.getDescription() : 
                             String.format("Saque de %s %s", request.getAmount(), request.getCurrency());
@@ -251,14 +248,10 @@ public class WalletController {
                                 auditService.logTransaction("TRANSFER", userId, money, 
                                         "Transfer to " + request.getTargetUserId() + ": " + request.getDescription(), correlationId);
                                 
-                                // Realizar transferência
                                 sourceWallet.transferTo(targetWallet, money);
                                 
-                                // Salvar ambas as carteiras
                                 Wallet savedSourceWallet = walletRepository.save(sourceWallet);
                                 Wallet savedTargetWallet = walletRepository.save(targetWallet);
-                                
-                                // Registrar histórico de saldo para ambas as carteiras
                                 String sourceDescription = request.getDescription() != null ? 
                                     request.getDescription() : 
                                     String.format("Transferência enviada de %s %s para %s", request.getAmount(), request.getCurrency(), request.getTargetUserId());

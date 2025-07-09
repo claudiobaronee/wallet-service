@@ -1,295 +1,103 @@
-# 🔒 Guia de Segurança - Wallet Service
+# 🔒 Security Guide
 
-Este guia explica como a segurança foi implementada no microserviço de carteira digital.
+This guide details the security mechanisms implemented in the Wallet Service microservice and best practices for secure operation.
 
-## 🛡️ Implementações de Segurança
+## 🛡️ Main Security Features
 
-### 1. **Autenticação JWT**
-- ✅ **Tokens JWT** - Autenticação baseada em tokens
-- ✅ **Refresh Tokens** - Renovação automática de tokens
-- ✅ **Validação de Tokens** - Verificação de integridade e expiração
-- ✅ **Sessões Stateless** - Sem armazenamento de sessão no servidor
+- **JWT Authentication**: Stateless authentication with signed tokens
+- **Role-based Authorization**: ADMIN and USER roles
+- **Input Validation**: Strict validation and sanitization of all input data
+- **Rate Limiting**: Protection against brute force and abuse
+- **CORS Configuration**: Restricts allowed origins
+- **CSRF Disabled**: For REST APIs (stateless)
+- **Security Headers**: Secure HTTP headers
+- **Audit Logs**: All sensitive operations are logged
 
-### 2. **Autorização**
-- ✅ **Controle de Acesso** - Endpoints protegidos por autenticação
-- ✅ **Roles e Permissões** - Sistema de roles (ADMIN, USER)
-- ✅ **Método Security** - Anotações `@PreAuthorize` disponíveis
+## 🔑 Authentication
 
-### 3. **Validação e Sanitização**
-- ✅ **Validação de Entrada** - Validação robusta de dados
-- ✅ **Sanitização** - Prevenção de ataques de injeção
-- ✅ **Rate Limiting** - Proteção contra ataques de força bruta
+- **JWT (JSON Web Token)** is used for all authentication.
+- Tokens are signed with a secret key (see `.env` and `application.yml`).
+- Token expiration is configurable (default: 24h).
+- **Refresh tokens** are supported for session renewal.
 
-### 4. **Configurações de Segurança**
-- ✅ **CORS Configurado** - Controle de origens permitidas
-- ✅ **CSRF Desabilitado** - Para APIs REST (stateless)
-- ✅ **Headers de Segurança** - Headers HTTP seguros
-
-## 🔐 Como Usar a Autenticação
-
-### 1. **Fazer Login**
-```bash
-curl -X POST http://localhost:8080/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "user1",
-    "password": "user123"
-  }'
-```
-
-**Resposta:**
+### Example JWT Payload
 ```json
 {
-  "message": "Login realizado com sucesso",
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "tokenType": "Bearer",
-  "username": "user1",
-  "role": "ROLE_USER"
+  "sub": "user1",
+  "role": "USER",
+  "iat": 1704067200,
+  "exp": 1704153600
 }
 ```
 
-### 2. **Usar Token em Requisições**
-```bash
-curl -X GET http://localhost:8080/api/wallets/user1 \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-```
+## 🧑‍💻 Authorization
 
-### 3. **Validar Token**
-```bash
-curl -X POST http://localhost:8080/api/auth/validate \
-  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-```
+- Endpoints are protected by roles:
+  - `ADMIN`: Full access
+  - `USER`: Access to own wallet only
+- Method-level security with `@PreAuthorize` annotations
 
-### 4. **Renovar Token**
-```bash
-curl -X POST http://localhost:8080/api/auth/refresh \
-  -H "Content-Type: application/json" \
-  -d '{
-    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-  }'
-```
+## 🧪 Test Users
 
-## 👥 Usuários Disponíveis
+| Username | Password   | Role  |
+|----------|------------|-------|
+| admin    | admin123   | ADMIN |
+| user1    | user123    | USER  |
+| user2    | user456    | USER  |
 
-### Usuários de Teste
-| Username | Password | Role | Descrição |
-|----------|----------|------|-----------|
-| `admin` | `admin123` | ADMIN | Administrador do sistema |
-| `user1` | `user123` | USER | Usuário comum 1 |
-| `user2` | `user456` | USER | Usuário comum 2 |
+## 🛡️ Input Validation & Sanitization
 
-## 📋 Endpoints de Segurança
+- All input data is validated (see DTOs and controllers)
+- Invalid or malicious data is rejected with 400 Bad Request
+- SQL injection and XSS are mitigated by strict validation
 
-### Endpoints Públicos (Sem Autenticação)
-- `GET /api/wallets/health` - Health check
-- `POST /api/auth/login` - Login
-- `POST /api/auth/refresh` - Renovar token
-- `POST /api/auth/validate` - Validar token
-- `GET /actuator/**` - Métricas e monitoramento
+## 🚦 Rate Limiting
 
-### Endpoints Protegidos (Com Autenticação)
-- `POST /api/wallets` - Criar carteira
-- `GET /api/wallets/{userId}` - Consultar carteira
-- `POST /api/wallets/{userId}/deposit` - Realizar depósito
-- `POST /api/wallets/{userId}/withdraw` - Realizar saque
-- `POST /api/wallets/{userId}/transfer` - Transferir entre carteiras
-- `GET /api/wallets/{userId}/balance-history` - Consultar histórico
+- All endpoints are protected by rate limiting (Bucket4j)
+- Default: 10 requests per second per user/IP
+- Prevents brute force and abuse
 
-## 🔧 Configurações de Segurança
+## 🌐 CORS
 
-### Variáveis de Ambiente
-```bash
-# JWT Configuration
-JWT_SECRET=mySecretKeyForDevelopmentOnlyChangeInProduction
-JWT_EXPIRATION=86400000
-JWT_REFRESH_EXPIRATION=604800000
-```
+- Only allowed origins can access the API
+- Configurable in `application.yml`
 
-### Configurações no application.yml
-```yaml
-jwt:
-  secret: ${JWT_SECRET:mySecretKeyForDevelopmentOnlyChangeInProduction}
-  expiration: ${JWT_EXPIRATION:86400000} # 24 horas
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 dias
-```
+## 🛑 CSRF
 
-## 🧪 Testando com Postman
+- CSRF protection is disabled (stateless REST API)
 
-### 1. **Configurar Variáveis**
-1. Abra a collection no Postman
-2. Vá em **Variables**
-3. Configure:
-   - `base_url`: `http://localhost:8080`
-   - `access_token`: (será preenchido após login)
-   - `refresh_token`: (será preenchido após login)
+## 🛡️ Security Headers
 
-### 2. **Fluxo de Autenticação**
-1. **Execute "Login"** com credenciais válidas
-2. **Copie o access_token** da resposta
-3. **Cole no campo `access_token`** das variáveis
-4. **Execute os endpoints protegidos**
+- HTTP headers set for all responses:
+  - `X-Content-Type-Options: nosniff`
+  - `X-Frame-Options: DENY`
+  - `X-XSS-Protection: 1; mode=block`
+  - `Strict-Transport-Security: max-age=31536000; includeSubDomains`
 
-### 3. **Exemplo de Fluxo Completo**
-```javascript
-// 1. Login
-POST {{base_url}}/api/auth/login
-{
-  "username": "user1",
-  "password": "user123"
-}
+## 📝 Audit Logs
 
-// 2. Usar token para criar carteira
-POST {{base_url}}/api/wallets
-Authorization: Bearer {{access_token}}
-{
-  "userId": "user1",
-  "currency": "BRL"
-}
+- All sensitive operations (create, deposit, withdraw, transfer) are logged
+- Logs include:
+  - User ID
+  - Operation type
+  - Timestamp
+  - Transaction ID
+  - Request details
 
-// 3. Usar token para consultar carteira
-GET {{base_url}}/api/wallets/user1
-Authorization: Bearer {{access_token}}
-```
+## 🔐 Best Practices
 
-## 🚨 Cenários de Erro
+- **Never share your JWT secret**
+- **Change default passwords** before production
+- **Use HTTPS** in production
+- **Monitor logs** for suspicious activity
+- **Regularly update dependencies**
 
-### 1. **Token Ausente**
-```json
-{
-  "status": 401,
-  "error": "Unauthorized",
-  "message": "Acesso negado. Token de autenticação inválido ou ausente.",
-  "path": "/api/wallets/user1"
-}
-```
+## 🆘 Troubleshooting
 
-### 2. **Token Inválido**
-```json
-{
-  "status": 401,
-  "error": "Unauthorized",
-  "message": "Acesso negado. Token de autenticação inválido ou ausente.",
-  "path": "/api/wallets/user1"
-}
-```
-
-### 3. **Token Expirado**
-```json
-{
-  "status": 401,
-  "error": "Unauthorized",
-  "message": "Acesso negado. Token de autenticação inválido ou ausente.",
-  "path": "/api/wallets/user1"
-}
-```
-
-### 4. **Credenciais Inválidas**
-```json
-{
-  "message": "Credenciais inválidas",
-  "accessToken": null,
-  "refreshToken": null,
-  "tokenType": null,
-  "username": null,
-  "role": null
-}
-```
-
-## 🔒 Boas Práticas de Segurança
-
-### 1. **Em Produção**
-- ✅ **Alterar JWT_SECRET** - Use uma chave secreta forte e única
-- ✅ **Configurar HTTPS** - Sempre use HTTPS em produção
-- ✅ **Rate Limiting** - Implemente rate limiting por IP
-- ✅ **Logs de Segurança** - Monitore tentativas de acesso
-- ✅ **Validação de Entrada** - Sempre valide dados de entrada
-
-### 2. **Gerenciamento de Tokens**
-- ✅ **Armazenar Tokens Seguramente** - Use localStorage ou cookies httpOnly
-- ✅ **Renovar Tokens Automaticamente** - Implemente renovação automática
-- ✅ **Invalidar Tokens** - Implemente logout e invalidação
-- ✅ **Monitorar Expiração** - Acompanhe expiração de tokens
-
-### 3. **Auditoria**
-- ✅ **Logs de Acesso** - Registre todas as tentativas de acesso
-- ✅ **Logs de Transações** - Registre todas as operações financeiras
-- ✅ **Monitoramento** - Monitore padrões suspeitos
-- ✅ **Alertas** - Configure alertas para atividades suspeitas
-
-## 🛠️ Implementações Técnicas
-
-### 1. **Spring Security Configuration**
-```java
-@Configuration
-@EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
-public class SecurityConfig {
-    // Configuração de segurança
-}
-```
-
-### 2. **JWT Service**
-```java
-@Service
-public class JwtService {
-    // Geração e validação de tokens JWT
-}
-```
-
-### 3. **Authentication Filter**
-```java
-@Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    // Filtro de autenticação JWT
-}
-```
-
-### 4. **User Details Service**
-```java
-@Service
-public class CustomUserDetailsService implements UserDetailsService {
-    // Serviço de detalhes do usuário
-}
-```
-
-## 📊 Métricas de Segurança
-
-### Logs de Segurança
-```json
-{
-  "timestamp": "2024-01-01T10:00:00Z",
-  "level": "INFO",
-  "service": "wallet-service",
-  "event": "AUTH_SUCCESS",
-  "username": "user1",
-  "ip": "192.168.1.100",
-  "userAgent": "PostmanRuntime/7.32.3"
-}
-```
-
-### Logs de Erro
-```json
-{
-  "timestamp": "2024-01-01T10:00:00Z",
-  "level": "WARN",
-  "service": "wallet-service",
-  "event": "AUTH_FAILURE",
-  "username": "invalid_user",
-  "ip": "192.168.1.100",
-  "reason": "Invalid credentials"
-}
-```
-
-## 🎯 Próximos Passos
-
-### Melhorias de Segurança
-- 🔄 **OAuth2/OpenID Connect** - Integração com provedores de identidade
-- 🔄 **2FA/MFA** - Autenticação de dois fatores
-- 🔄 **Audit Trail** - Rastreamento completo de ações
-- 🔄 **Encryption at Rest** - Criptografia de dados sensíveis
-- 🔄 **API Gateway** - Gateway para rate limiting e segurança adicional
+- If you have issues with authentication, check the JWT secret and expiration
+- For CORS errors, verify allowed origins
+- For rate limiting, check the configured limits in `application.yml`
 
 ---
 
-**🔒 Segurança implementada com sucesso! O microserviço está protegido e pronto para produção!** 
+**For questions or security incidents, open an issue on GitHub.** 

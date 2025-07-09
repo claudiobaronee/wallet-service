@@ -20,13 +20,13 @@ public class ResilienceConfig {
     @Bean
     public CircuitBreakerRegistry circuitBreakerRegistry() {
         CircuitBreakerConfig config = CircuitBreakerConfig.custom()
-            .failureRateThreshold(50) // 50% de falhas para abrir o circuit
-            .waitDurationInOpenState(Duration.ofSeconds(60)) // 60s em estado aberto
-            .slidingWindowSize(10) // Janela de 10 requisições
-            .minimumNumberOfCalls(5) // Mínimo de 5 chamadas antes de avaliar
-            .permittedNumberOfCallsInHalfOpenState(3) // 3 chamadas em half-open
+            .failureRateThreshold(50)
+            .waitDurationInOpenState(Duration.ofSeconds(60))
+            .slidingWindowSize(10)
+            .minimumNumberOfCalls(5)
+            .permittedNumberOfCallsInHalfOpenState(3)
             .automaticTransitionFromOpenToHalfOpenEnabled(true)
-            .recordExceptions(Exception.class) // Registrar todas as exceções
+            .recordExceptions(Exception.class)
             .build();
 
         return CircuitBreakerRegistry.of(config);
@@ -35,9 +35,9 @@ public class ResilienceConfig {
     @Bean
     public RetryRegistry retryRegistry() {
         RetryConfig config = RetryConfig.custom()
-            .maxAttempts(3) // Máximo de 3 tentativas
-            .waitDuration(Duration.ofMillis(100)) // Esperar 100ms entre tentativas
-            .retryExceptions(Exception.class) // Retry em todas as exceções
+            .maxAttempts(3)
+            .waitDuration(Duration.ofMillis(100))
+            .retryExceptions(Exception.class)
             .build();
 
         return RetryRegistry.of(config);

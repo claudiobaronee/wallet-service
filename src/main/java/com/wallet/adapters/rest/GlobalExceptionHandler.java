@@ -90,7 +90,6 @@ public class GlobalExceptionHandler {
             this.details = details;
         }
         
-        // Getters
         public int getStatus() {
             return status;
         }

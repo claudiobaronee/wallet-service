@@ -57,11 +57,10 @@ management:
     tags:
       application: ${spring.application.name}
 
-# JWT Configuration
 jwt:
   secret: ${JWT_SECRET:mySecretKeyForDevelopmentOnlyChangeInProduction}
-  expiration: ${JWT_EXPIRATION:86400000} # 24 horas
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000} # 7 dias
+  expiration: ${JWT_EXPIRATION:86400000}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
   issuer: ${JWT_ISSUER:wallet-service}
   audience: ${JWT_AUDIENCE:wallet-api}
 

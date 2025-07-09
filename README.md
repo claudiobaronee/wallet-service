@@ -1,21 +1,21 @@
-# Wallet Service - Microserviço de Carteira Digital
+# Wallet Service - Digital Wallet Microservice
 
-Um microserviço robusto para gerenciamento de carteiras digitais, construído com arquitetura hexagonal, Spring Boot e foco em alta confiabilidade, rastreabilidade e auditabilidade.
+A robust microservice for managing digital wallets, built with hexagonal architecture, Spring Boot, and focused on high reliability, traceability, and auditability.
 
-## 🚀 Funcionalidades
+## 🚀 Features
 
-- ✅ **Criação de carteiras** - Criação de carteiras digitais para usuários
-- ✅ **Consultas de saldo** - Consulta de saldo atual da carteira
-- ✅ **Depósitos** - Realização de depósitos na carteira
-- ✅ **Saques** - Realização de saques da carteira (com validação de saldo)
-- ✅ **Transferências** - Transferência entre carteiras de usuários
-- ✅ **Histórico de saldo** - Consulta do histórico completo de movimentações
-- ✅ **Health check** - Verificação de status do serviço
-- ✅ **Validações robustas** - Validação completa de dados de entrada
-- ✅ **Transações atômicas** - Garantia de consistência de dados
-- ✅ **Rastreabilidade** - Logs detalhados e IDs de transação únicos
+- ✅ **Wallet creation** - Create digital wallets for users
+- ✅ **Balance queries** - Query the current wallet balance
+- ✅ **Deposits** - Make deposits into the wallet
+- ✅ **Withdrawals** - Withdraw from the wallet (with balance validation)
+- ✅ **Transfers** - Transfer between user wallets
+- ✅ **Balance history** - Query the complete transaction history
+- ✅ **Health check** - Service status check
+- ✅ **Robust validations** - Complete input data validation
+- ✅ **Atomic transactions** - Data consistency guarantee
+- ✅ **Traceability** - Detailed logs and unique transaction IDs
 
-## 🏗️ Arquitetura
+## 🏗️ Architecture
 
 ### Hexagonal Architecture (Ports & Adapters)
 ```
@@ -41,83 +41,83 @@ Um microserviço robusto para gerenciamento de carteiras digitais, construído c
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Tecnologias Utilizadas
+### Technologies Used
 
-- **Java 17** - Linguagem principal
-- **Spring Boot 3.x** - Framework principal
-- **PostgreSQL** - Banco de dados principal
-- **Redis** - Cache e sessões
-- **Docker & Docker Compose** - Containerização
-- **Flyway** - Migração de banco de dados
-- **Resilience4j** - Padrões de resiliência
-- **Prometheus & Grafana** - Monitoramento e observabilidade
-- **Maven** - Gerenciamento de dependências
+- **Java 17** - Main language
+- **Spring Boot 3.x** - Main framework
+- **PostgreSQL** - Main database
+- **Redis** - Cache and sessions
+- **Docker & Docker Compose** - Containerization
+- **Flyway** - Database migration
+- **Resilience4j** - Resilience patterns
+- **Prometheus & Grafana** - Monitoring and observability
+- **Maven** - Dependency management
 
-## 🛠️ Configuração e Execução
+## 🛠️ Setup and Execution
 
-### Pré-requisitos
+### Prerequisites
 
 - Java 17+
-- Docker e Docker Compose
+- Docker and Docker Compose
 
-### 1. Clone o repositório
+### 1. Clone the repository
 ```bash
 git clone <repository-url>
 cd wallet-service
 ```
 
-### 2. Configure as variáveis de ambiente
+### 2. Configure environment variables
 ```bash
 cp env.example .env
-# Edite o arquivo .env com suas configurações
+# Edit the .env file with your settings
 ```
 
-### 3. Execute com Docker Compose
+### 3. Run with Docker Compose
 
-#### Opção 1: Script Automático (Recomendado)
+#### Option 1: Automatic Script (Recommended)
 ```bash
 # Windows (PowerShell)
-.\dev-setup.ps1
+./dev-setup.ps1
 
 # Linux/Mac
 chmod +x dev-setup.sh
 ./dev-setup.sh
 ```
 
-#### Opção 2: Comando Manual
+#### Option 2: Manual Command
 ```bash
-# Parar containers existentes
+# Stop existing containers
 docker-compose down
 
-# Construir e iniciar
+# Build and start
 docker-compose up --build -d
 
-# Verificar logs
+# Check logs
 docker-compose logs -f wallet-service
 ```
 
-### 4. Verifique se os serviços estão rodando
+### 4. Check if services are running
 ```bash
 docker-compose ps
 ```
 
-### 5. Acessos após inicialização
+### 5. Access after startup
 - **Wallet Service**: http://localhost:8080
 - **Grafana**: http://localhost:3000 (admin/admin)
 - **Prometheus**: http://localhost:9090
 
-## 🔧 Configuração Unificada
+## 🔧 Unified Configuration
 
-O projeto agora utiliza uma **configuração unificada** que funciona tanto para desenvolvimento local quanto para Docker:
+The project now uses a **unified configuration** that works for both local development and Docker:
 
-### Arquivos de Configuração
-- **`application.yml`** - Configuração única com variáveis de ambiente
-- **`env.example`** - Exemplo de variáveis de ambiente
-- **`docker-compose.yml`** - Configuração dos serviços Docker
+### Configuration Files
+- **`application.yml`** - Single configuration with environment variables
+- **`env.example`** - Example environment variables
+- **`docker-compose.yml`** - Docker services configuration
 
-### Variáveis de Ambiente Principais
+### Main Environment Variables
 ```bash
-# Banco de Dados
+# Database
 SPRING_DATASOURCE_HOST=localhost  # postgres (Docker)
 SPRING_DATASOURCE_PORT=5432
 SPRING_DATASOURCE_DB=wallet_db
@@ -130,24 +130,24 @@ REDIS_PORT=6379
 JWT_SECRET=your-secret-key
 JWT_EXPIRATION=86400000
 
-# Servidor
+# Server
 SERVER_PORT=8080
 ```
 
-### Modos de Execução
+### Execution Modes
 
-#### Desenvolvimento Local
-1. Configure o arquivo `.env` com `localhost` para hosts
-2. Execute: `./mvnw spring-boot:run`
+#### Local Development
+1. Configure the `.env` file with `localhost` for hosts
+2. Run: `./mvnw spring-boot:run`
 
-#### Docker Completo
-1. Execute: `docker-compose up -d`
-2. Todos os serviços rodam em containers
+#### Full Docker
+1. Run: `docker-compose up -d`
+2. All services run in containers
 
-#### Infraestrutura Docker + App Local
-1. Execute: `.\dev-setup.ps1` (Windows) ou `./dev-setup.sh` (Linux/Mac)
-2. Configure `.env` com `localhost` para hosts
-3. Execute: `./mvnw spring-boot:run`
+#### Docker Infrastructure + Local App
+1. Run: `./dev-setup.ps1` (Windows) or `./dev-setup.sh` (Linux/Mac)
+2. Configure `.env` with `localhost` for hosts
+3. Run: `./mvnw spring-boot:run`
 
 ## 📡 API Endpoints
 
@@ -156,37 +156,35 @@ SERVER_PORT=8080
 http://localhost:8080/api/wallets
 ```
 
-### Endpoints Disponíveis
+### Available Endpoints
 
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| `GET` | `/health` | Health check do serviço |
-| `POST` | `/` | Criar nova carteira |
-| `GET` | `/{userId}` | Consultar carteira |
-| `POST` | `/{userId}/deposit` | Realizar depósito |
-| `POST` | `/{userId}/withdraw` | Realizar saque |
-| `POST` | `/{userId}/transfer` | Transferir entre carteiras |
-| `GET` | `/{userId}/balance-history` | Consultar histórico de saldo |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET`  | `/health` | Service health check |
+| `POST` | `/` | Create new wallet |
+| `GET`  | `/{userId}` | Get wallet |
+| `POST` | `/{userId}/deposit` | Make deposit |
+| `POST` | `/{userId}/withdraw` | Make withdrawal |
+| `POST` | `/{userId}/transfer` | Transfer between wallets |
+| `GET`  | `/{userId}/balance-history` | Get balance history |
 
-## 🧪 Testando a API
+## 🧪 Testing the API
 
-### Usando a Collection do Postman
+### Using the Postman Collection
 
-1. **Importe a collection**: Abra o Postman e importe o arquivo `Wallet_Service_API.postman_collection.json`
-
-2. **Configure as variáveis**:
+1. **Import the collection**: Open Postman and import the `Wallet_Service_API.postman_collection.json` file
+2. **Configure variables**:
    - `base_url`: `http://localhost:8080`
-   - `userId`: `user123` (ou qualquer ID de usuário)
+   - `userId`: `user123` (or any user ID)
+3. **Run the tests**:
+   - **Health Check**: Check if the service is running
+   - **Basic Scenarios**: Create, get, deposit, withdraw, and transfer
+   - **Validation Tests**: Error and validation scenarios
+   - **Complete Scenarios**: End-to-end flows
 
-3. **Execute os testes**:
-   - **Health Check**: Verifica se o serviço está funcionando
-   - **Cenários Básicos**: Criação, consulta, depósito, saque e transferência
-   - **Testes de Validação**: Cenários de erro e validação
-   - **Cenários Completos**: Fluxos end-to-end
+### Usage Examples
 
-### Exemplos de Uso
-
-#### 1. Criar uma carteira
+#### 1. Create a wallet
 ```bash
 curl -X POST http://localhost:8080/api/wallets \
   -H "Content-Type: application/json" \
@@ -196,130 +194,128 @@ curl -X POST http://localhost:8080/api/wallets \
   }'
 ```
 
-#### 2. Realizar um depósito
+#### 2. Make a deposit
 ```bash
 curl -X POST http://localhost:8080/api/wallets/user123/deposit \
   -H "Content-Type: application/json" \
   -d '{
     "amount": 100.50,
     "currency": "BRL",
-    "description": "Depósito inicial"
+    "description": "Initial deposit"
   }'
 ```
 
-#### 3. Consultar saldo
+#### 3. Get balance
 ```bash
 curl -X GET http://localhost:8080/api/wallets/user123
 ```
 
-## 📊 Monitoramento
+## 📊 Monitoring
 
 ### Prometheus
 - URL: http://localhost:9090
-- Métricas disponíveis:
-  - Taxa de requisições
-  - Tempo de resposta
-  - Taxa de erro
-  - Uso de recursos
+- Available metrics:
+  - Request rate
+  - Response time
+  - Error rate
+  - Resource usage
 
 ### Grafana
 - URL: http://localhost:3000
-- Usuário: `admin`
-- Senha: `admin`
-- Dashboards pré-configurados para monitoramento
+- User: `admin`
+- Password: `admin`
+- Pre-configured dashboards for monitoring
 
-## 🔒 Segurança
+## 🔒 Security
 
-### Autenticação JWT
-- ✅ **Tokens JWT** - Autenticação baseada em tokens
-- ✅ **Refresh Tokens** - Renovação automática de tokens
-- ✅ **Validação de Tokens** - Verificação de integridade e expiração
-- ✅ **Sessões Stateless** - Sem armazenamento de sessão no servidor
+### JWT Authentication
+- ✅ **JWT Tokens** - Token-based authentication
+- ✅ **Refresh Tokens** - Automatic token renewal
+- ✅ **Token Validation** - Integrity and expiration check
+- ✅ **Stateless Sessions** - No session storage on the server
 
-### Autorização
-- ✅ **Controle de Acesso** - Endpoints protegidos por autenticação
-- ✅ **Roles e Permissões** - Sistema de roles (ADMIN, USER)
-- ✅ **Método Security** - Anotações `@PreAuthorize` disponíveis
+### Authorization
+- ✅ **Access Control** - Endpoints protected by authentication
+- ✅ **Roles and Permissions** - Role system (ADMIN, USER)
+- ✅ **Method Security** - `@PreAuthorize` annotations available
 
-### Validação e Sanitização
-- ✅ **Validação de Entrada** - Validação robusta de dados
-- ✅ **Sanitização** - Prevenção de ataques de injeção
-- ✅ **Rate Limiting** - Proteção contra ataques de força bruta
+### Validation and Sanitization
+- ✅ **Input Validation** - Robust data validation
+- ✅ **Sanitization** - Injection attack prevention
+- ✅ **Rate Limiting** - Protection against brute force attacks
 
-### Configurações de Segurança
-- ✅ **CORS Configurado** - Controle de origens permitidas
-- ✅ **CSRF Desabilitado** - Para APIs REST (stateless)
-- ✅ **Headers de Segurança** - Headers HTTP seguros
+### Security Settings
+- ✅ **CORS Configured** - Allowed origins control
+- ✅ **CSRF Disabled** - For REST APIs (stateless)
+- ✅ **Security Headers** - Secure HTTP headers
 
-### Usuários de Teste
-| Username | Password | Role | Descrição |
-|----------|----------|------|-----------|
-| `admin` | `admin123` | ADMIN | Administrador do sistema |
-| `user1` | `user123` | USER | Usuário comum 1 |
-| `user2` | `user456` | USER | Usuário comum 2 |
+### Test Users
+| Username | Password | Role | Description |
+|----------|----------|------|-------------|
+| `admin`  | `admin123` | ADMIN | System administrator |
+| `user1`  | `user123`  | USER  | Regular user 1       |
+| `user2`  | `user456`  | USER  | Regular user 2       |
 
-**📖 Para instruções detalhadas de segurança, consulte: `SECURITY_GUIDE.md`**
+**📖 For detailed security instructions, see: `SECURITY_GUIDE.md`**
 
 ## 📝 Logs
 
-Os logs são estruturados e incluem:
-- IDs de transação únicos
-- Timestamps precisos
-- Contexto completo das operações
-- Níveis de log apropriados (INFO, WARN, ERROR)
+Logs are structured and include:
+- Unique transaction IDs
+- Precise timestamps
+- Full operation context
+- Appropriate log levels (INFO, WARN, ERROR)
 
-## 🧪 Testes
+## 🧪 Tests
 
-### Executar testes unitários
+### Run unit tests
 ```bash
 mvn test
 ```
 
-### Executar testes de integração
+### Run integration tests
 ```bash
 mvn verify
 ```
 
-## 📈 Status do Projeto
+## 📈 Project Status
 
-### ✅ Implementado (95%)
-- ✅ Arquitetura hexagonal completa
-- ✅ Todas as funcionalidades principais
-- ✅ Validações robustas
-- ✅ Transações atômicas
-- ✅ Logs estruturados
-- ✅ Monitoramento com Prometheus/Grafana
-- ✅ Containerização com Docker
-- ✅ Collection Postman completa
-- ✅ Documentação atualizada
-- ✅ **Segurança JWT completa**
-- ✅ **Autenticação e autorização**
-- ✅ **Sistema de roles e permissões**
+### ✅ Implemented (95%)
+- ✅ Complete hexagonal architecture
+- ✅ All main features
+- ✅ Robust validations
+- ✅ Atomic transactions
+- ✅ Structured logs
+- ✅ Monitoring with Prometheus/Grafana
+- ✅ Docker containerization
+- ✅ Complete Postman collection
+- ✅ Updated documentation
+- ✅ **Full JWT security**
+- ✅ **Authentication and authorization**
+- ✅ **Role and permission system**
 
-### 🔄 Em Desenvolvimento (5%)
-- 🔄 Testes de integração avançados
-- 🔄 Otimizações de performance
-- 🔄 Melhorias de segurança adicionais (OAuth2, 2FA)
+### 🔄 In Development (5%)
+- 🔄 Advanced integration tests
+- 🔄 Performance optimizations
+- 🔄 Additional security improvements (OAuth2, 2FA)
 
-## 🤝 Contribuição
+## 🤝 Contribution
 
-1. Fork o projeto
-2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+1. Fork the project
+2. Create a branch for your feature (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-## 📄 Licença
+## 📄 License
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+This project is under the MIT license. See the `LICENSE` file for more details.
 
-## 🆘 Suporte
+## 🆘 Support
 
-Para suporte e dúvidas:
-- Abra uma issue no GitHub
-- Consulte a documentação da API
-- Use a collection do Postman para testes
+For support and questions:
+- Open an issue on GitHub
+- Check the API documentation
+- Use the Postman collection for testing
 
 ---
-
-**Desenvolvido com ❤️ usando Spring Boot e arquitetura hexagonal** 

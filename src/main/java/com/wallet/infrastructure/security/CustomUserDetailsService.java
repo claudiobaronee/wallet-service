@@ -16,15 +16,11 @@ import java.util.Map;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    // Em produção, isso deveria vir de um banco de dados
-    // Por simplicidade, estamos usando um mapa em memória
     private final Map<String, UserDetails> users = new HashMap<>();
 
     @PostConstruct
     public void init() {
         try {
-            // Criar alguns usuários de exemplo após a inicialização
-            // Usando BCryptPasswordEncoder diretamente para evitar dependência circular
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             
             createUser("admin", passwordEncoder.encode("admin123"), "ADMIN");

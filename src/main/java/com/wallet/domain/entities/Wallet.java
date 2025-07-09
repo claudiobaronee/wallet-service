@@ -95,7 +95,6 @@ public class Wallet {
             throw new IllegalStateException("Insufficient funds for transfer");
         }
         
-        // Realizar transferência de forma atômica
         this.withdraw(amount);
         targetWallet.deposit(amount);
     }

@@ -18,10 +18,10 @@ public class JwtService {
     @Value("${jwt.secret:defaultSecretKeyForDevelopmentOnly}")
     private String secret;
 
-    @Value("${jwt.expiration:86400000}") // 24 horas em millisegundos
+    @Value("${jwt.expiration:86400000}")
     private long jwtExpiration;
 
-    @Value("${jwt.refresh-expiration:604800000}") // 7 dias em millisegundos
+    @Value("${jwt.refresh-expiration:604800000}")
     private long refreshExpiration;
 
     public String extractUsername(String token) {

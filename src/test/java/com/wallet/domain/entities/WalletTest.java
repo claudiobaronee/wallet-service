@@ -40,10 +40,8 @@ class WalletTest {
 
     @Test
     void shouldWithdrawMoneySuccessfully() {
-        // Primeiro deposita
         wallet.deposit(new Money(new BigDecimal("100.00"), "BRL"));
         
-        // Depois saca
         Money withdrawAmount = new Money(new BigDecimal("30.00"), "BRL");
         Money oldBalance = wallet.getBalance();
 

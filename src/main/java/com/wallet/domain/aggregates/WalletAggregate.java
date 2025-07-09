@@ -31,14 +31,12 @@ public class WalletAggregate {
         Wallet wallet = Wallet.create(userId, currency);
         WalletAggregate aggregate = new WalletAggregate(wallet);
         
-        // Publicar evento de domínio
         aggregate.addDomainEvent(new WalletCreatedEvent(userId, currency, LocalDateTime.now()));
         
         return aggregate;
     }
     
     public void deposit(Money amount, String description) {
-        // Validar regras de negócio
         if (!wallet.isActive()) {
             throw new IllegalStateException("Wallet is not active");
         }
@@ -47,15 +45,11 @@ public class WalletAggregate {
             throw new IllegalArgumentException("Currency mismatch");
         }
         
-        // Executar operação
         Money oldBalance = wallet.getBalance();
         wallet.deposit(amount);
         
-        // Criar transação
         Transaction transaction = Transaction.createDeposit(wallet, amount, description);
         transactions.add(transaction);
-        
-        // Publicar eventos de domínio
         addDomainEvent(new MoneyDepositedEvent(
             wallet.getUserId(), 
             amount, 
@@ -74,7 +68,6 @@ public class WalletAggregate {
     }
     
     public void withdraw(Money amount, String description) {
-        // Validar regras de negócio
         if (!wallet.isActive()) {
             throw new IllegalStateException("Wallet is not active");
         }
@@ -87,15 +80,11 @@ public class WalletAggregate {
             throw new IllegalArgumentException("Insufficient funds");
         }
         
-        // Executar operação
         Money oldBalance = wallet.getBalance();
         wallet.withdraw(amount);
         
-        // Criar transação
         Transaction transaction = Transaction.createWithdraw(wallet, amount, description);
         transactions.add(transaction);
-        
-        // Publicar eventos de domínio
         addDomainEvent(new MoneyWithdrawnEvent(
             wallet.getUserId(), 
             amount, 
@@ -114,7 +103,6 @@ public class WalletAggregate {
     }
     
     public void transferTo(WalletAggregate targetAggregate, Money amount, String description) {
-        // Validar regras de negócio
         if (!wallet.isActive()) {
             throw new IllegalStateException("Source wallet is not active");
         }
@@ -132,13 +120,11 @@ public class WalletAggregate {
             throw new IllegalArgumentException("Insufficient funds in source wallet");
         }
         
-        // Executar transferência
         Money sourceOldBalance = wallet.getBalance();
         Money targetOldBalance = targetAggregate.getWallet().getBalance();
         
         wallet.transferTo(targetAggregate.getWallet(), amount);
         
-        // Criar transações
         Transaction sourceTransaction = Transaction.createTransfer(
             wallet, 
             targetAggregate.getWallet(), 
@@ -153,8 +139,6 @@ public class WalletAggregate {
             "Transfer from " + wallet.getUserId() + ": " + description
         );
         targetAggregate.transactions.add(targetTransaction);
-        
-        // Publicar eventos de domínio
         addDomainEvent(new MoneyTransferredEvent(
             wallet.getUserId(),
             targetAggregate.getWallet().getUserId(),
@@ -213,7 +197,6 @@ public class WalletAggregate {
         this.domainEvents.clear();
     }
     
-    // Getters
     public Wallet getWallet() {
         return wallet;
     }

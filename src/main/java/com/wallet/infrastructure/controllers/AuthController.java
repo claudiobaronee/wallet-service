@@ -28,19 +28,14 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthDTOs.LoginResponse> login(@Valid @RequestBody AuthDTOs.LoginRequest request) {
         try {
-            // Autenticar o usuário
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
             );
 
-            // Obter os detalhes do usuário autenticado
             UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-            // Gerar tokens
             String accessToken = jwtService.generateToken(userDetails);
             String refreshToken = jwtService.generateRefreshToken(userDetails);
-
-            // Criar resposta
             AuthDTOs.LoginResponse response = new AuthDTOs.LoginResponse(
                 "Login realizado com sucesso",
                 accessToken,
@@ -69,28 +64,19 @@ public class AuthController {
     @PostMapping("/refresh")
     public ResponseEntity<AuthDTOs.RefreshResponse> refresh(@Valid @RequestBody AuthDTOs.RefreshRequest request) {
         try {
-            // Extrair username do refresh token
             String username = jwtService.extractUsername(request.getRefreshToken());
             
-            // Verificar se o token não expirou
             if (jwtService.isTokenExpired(request.getRefreshToken())) {
                 return ResponseEntity.status(401).body(
                     new AuthDTOs.RefreshResponse("Refresh token expirado", null, null)
                 );
             }
 
-            // Em produção, você deveria verificar se o refresh token está na lista de tokens válidos
-            // Por simplicidade, estamos apenas gerando um novo token
-
-            // Em produção, você deveria carregar os UserDetails do banco
-            // Por simplicidade, estamos criando um UserDetails básico
             UserDetails userDetails = org.springframework.security.core.userdetails.User.builder()
                 .username(username)
                 .password("")
                 .authorities(Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_USER")))
                 .build();
-            
-            // Gerar novo access token
             String newAccessToken = jwtService.generateToken(userDetails);
 
             AuthDTOs.RefreshResponse response = new AuthDTOs.RefreshResponse(

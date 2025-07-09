@@ -1,81 +1,78 @@
-# 🧪 Guia de Testes com Postman
+# 🧪 Postman Testing Guide
 
-Este guia explica como usar a collection do Postman para testar completamente o microserviço de carteira digital.
+This guide explains how to use the Postman collection to fully test the digital wallet microservice.
 
-## 📋 Pré-requisitos
+## 📋 Prerequisites
 
-1. **Postman instalado** - Baixe em [postman.com](https://www.postman.com/downloads/)
-2. **Serviço rodando** - Execute `docker-compose up -d`
-3. **Collection importada** - Importe o arquivo `Wallet_Service_API.postman_collection.json`
+1. **Postman installed** - Download at [postman.com](https://www.postman.com/downloads/)
+2. **Service running** - Run `docker-compose up -d`
+3. **Collection imported** - Import the `Wallet_Service_API.postman_collection.json` file
 
-## 🚀 Configuração Inicial
+## 🚀 Initial Setup
 
-### 1. Importar a Collection
+### 1. Import the Collection
 
-1. Abra o Postman
-2. Clique em **Import**
-3. Selecione o arquivo `Wallet_Service_API.postman_collection.json`
-4. A collection será importada com todas as requisições organizadas
+1. Open Postman
+2. Click **Import**
+3. Select the `Wallet_Service_API.postman_collection.json` file
+4. The collection will be imported with all requests organized
 
-### 2. Configurar Variáveis
+### 2. Configure Variables
 
-1. Clique na collection **Wallet Service API**
-2. Vá na aba **Variables**
-3. Configure as variáveis:
+1. Click the **Wallet Service API** collection
+2. Go to the **Variables** tab
+3. Set the variables:
 
-| Variável | Valor | Descrição |
-|----------|-------|-----------|
-| `base_url` | `http://localhost:8080` | URL base da API |
-| `userId` | `user123` | ID do usuário para testes |
+| Variable   | Value                | Description           |
+|------------|----------------------|-----------------------|
+| `base_url` | `http://localhost:8080` | API base URL         |
+| `userId`   | `user123`            | User ID for testing   |
 
-### 3. Verificar Configuração
+### 3. Check Setup
 
-Execute o **Health Check** para verificar se tudo está funcionando:
+Run the **Health Check** to verify everything is working:
 
 ```
 GET {{base_url}}/api/wallets/health
 ```
 
-Resposta esperada:
+Expected response:
 ```json
 {
-  "status": "UP",
-  "service": "wallet-service",
-  "version": "1.0.0",
-  "timestamp": 1704067200000
+  "status": "UP"
 }
 ```
 
-## 📚 Estrutura da Collection
+## 📚 Collection Structure
 
 ### 🏥 Health Check
-- **Health Check**: Verifica se o serviço está funcionando
+- **Health Check**: Checks if the service is running
 
-### 🔧 Operações Básicas
-- **Criar Carteira**: Cria uma nova carteira para um usuário
-- **Consultar Carteira**: Consulta os detalhes de uma carteira
-- **Realizar Depósito**: Realiza um depósito na carteira
-- **Realizar Saque**: Realiza um saque da carteira
-- **Transferir Entre Carteiras**: Transfere dinheiro entre carteiras
-- **Consultar Histórico de Saldo**: Consulta o histórico de movimentações
+### 🔧 Basic Operations
+- **Create Wallet**: Creates a new wallet for a user
+- **Get Wallet**: Gets wallet details
+- **Deposit**: Makes a deposit into the wallet
+- **Withdraw**: Makes a withdrawal from the wallet
+- **Transfer Between Wallets**: Transfers money between wallets
+- **Get Balance History**: Gets the transaction history
 
-### 🧪 Testes de Validação
-- **userId inválido**: Testa validação de userId vazio
-- **currency inválida**: Testa validação de moeda inválida
-- **amount inválido**: Testa validação de valor negativo
-- **saldo insuficiente**: Testa saque com saldo insuficiente
-- **mesma carteira**: Testa transferência para a mesma carteira
+### 🧪 Validation Tests
+- **Invalid userId**: Tests empty userId validation
+- **Invalid currency**: Tests invalid currency validation
+- **Invalid amount**: Tests negative value validation
+- **Insufficient balance**: Tests withdrawal with insufficient funds
+- **Same wallet**: Tests transfer to the same wallet
 
-### 🎯 Cenários de Teste
-- **Fluxo Completo - Usuário 1**: Criação, depósito e consulta
-- **Fluxo Completo - Usuário 2**: Criação e depósito
-- **Transferência Entre Usuários**: Teste completo de transferência
+### 🎯 Test Scenarios
+- **Full Flow - User 1**: Creation, deposit, and get
+- **Full Flow - User 2**: Creation and deposit
+- **Transfer Between Users**: Complete transfer test
 
-## 🎮 Como Executar os Testes
+## 🎮 How to Run the Tests
 
-### 1. Teste Básico - Criar e Consultar Carteira
+### 1. Basic Test - Create and Get Wallet
 
-1. **Execute "Criar Carteira"**:
+1. **Run "Create Wallet"**:
    ```json
    {
      "userId": "user123",
@@ -83,82 +80,77 @@ Resposta esperada:
    }
    ```
    
-   Resposta esperada (201):
+   Expected response (201):
    ```json
    {
-     "id": 1,
      "userId": "user123",
-     "balance": 0.00,
      "currency": "BRL",
      "status": "ACTIVE",
-     "message": "Carteira criada com sucesso",
+     "message": "Wallet created successfully",
      "createdAt": "2024-01-01 10:00:00"
    }
    ```
 
-2. **Execute "Consultar Carteira"**:
+2. **Run "Get Wallet"**:
    - URL: `{{base_url}}/api/wallets/user123`
    
-   Resposta esperada (200):
+   Expected response (200):
    ```json
    {
-     "id": 1,
      "userId": "user123",
-     "balance": 0.00,
      "currency": "BRL",
-     "status": "ACTIVE",
-     "createdAt": "2024-01-01 10:00:00",
-     "updatedAt": "2024-01-01 10:00:00"
+     "balance": 0.00,
+     "status": "ACTIVE"
    }
    ```
 
-### 2. Teste de Depósito
+### 2. Deposit Test
 
-1. **Execute "Realizar Depósito"**:
+1. **Run "Deposit"**:
    ```json
    {
      "amount": 100.50,
      "currency": "BRL",
-     "description": "Depósito inicial"
+     "description": "Initial deposit"
    }
    ```
    
-   Resposta esperada (200):
+   Expected response (200):
    ```json
    {
-     "message": "Depósito realizado com sucesso",
+     "message": "Deposit successful",
      "amount": 100.50,
      "currency": "BRL",
      "newBalance": 100.50,
-     "transactionId": "uuid-gerado"
+     "transactionId": "generated-uuid"
    }
    ```
 
-### 3. Teste de Saque
+### 3. Withdrawal Test
 
-1. **Execute "Realizar Saque"**:
+1. **Run "Withdraw"**:
    ```json
    {
      "amount": 50.25,
      "currency": "BRL",
-     "description": "Saque para pagamento"
+     "description": "Payment withdrawal"
    }
    ```
    
-   Resposta esperada (200):
+   Expected response (200):
    ```json
    {
-     "message": "Saque realizado com sucesso",
+     "message": "Withdrawal successful",
      "amount": 50.25,
      "currency": "BRL",
      "newBalance": 50.25,
-     "transactionId": "uuid-gerado"
+     "transactionId": "generated-uuid"
    }
    ```
 
-### 4. Teste de Transferência
+### 4. Transfer Test
 
-1. **Primeiro, crie uma segunda carteira**:
+1. **First, create a second wallet**:
    ```json
    {
      "userId": "user456",
@@ -166,109 +158,104 @@ Resposta esperada:
    }
    ```
 
-2. **Execute "Transferir Entre Carteiras"**:
+2. **Run "Transfer Between Wallets"**:
    ```json
    {
      "targetUserId": "user456",
      "amount": 25.00,
      "currency": "BRL",
-     "description": "Transferência para pagamento"
+     "description": "Payment transfer"
    }
    ```
    
-   Resposta esperada (200):
+   Expected response (200):
    ```json
    {
-     "message": "Transferência realizada com sucesso",
+     "message": "Transfer successful",
      "amount": 25.00,
      "currency": "BRL",
-     "sourceUserId": "user123",
-     "targetUserId": "user456",
      "sourceNewBalance": 25.25,
      "targetNewBalance": 25.00,
-     "transactionId": "uuid-gerado"
+     "transactionId": "generated-uuid"
    }
    ```
 
-### 5. Teste de Histórico
+### 5. History Test
 
-1. **Execute "Consultar Histórico de Saldo"**:
+1. **Run "Get Balance History"**:
    - URL: `{{base_url}}/api/wallets/user123/balance-history`
    
-   Resposta esperada (200):
+   Expected response (200):
    ```json
    {
-     "userId": "user123",
-     "currentBalance": 25.25,
-     "currency": "BRL",
      "history": [
        {
          "balance": 0.00,
          "currency": "BRL",
-         "description": "Criação da carteira",
+         "description": "Wallet creation",
          "recordedAt": "2024-01-01 10:00:00"
        },
        {
          "balance": 100.50,
          "currency": "BRL",
-         "description": "Depósito inicial",
+         "description": "Initial deposit",
          "recordedAt": "2024-01-01 10:01:00"
        },
        {
          "balance": 50.25,
          "currency": "BRL",
-         "description": "Saque para pagamento",
+         "description": "Payment withdrawal",
          "recordedAt": "2024-01-01 10:02:00"
        },
        {
          "balance": 25.25,
          "currency": "BRL",
-         "description": "Transferência enviada de 25.00 BRL para user456",
+         "description": "Transfer sent of 25.00 BRL to user456",
          "recordedAt": "2024-01-01 10:03:00"
        }
      ]
    }
    ```
 
-## 🧪 Testes de Validação
+## 🧪 Validation Tests
 
-### 1. Teste de userId inválido
+### 1. Invalid userId Test
 ```json
 {
   "userId": "",
   "currency": "BRL"
 }
 ```
-**Resposta esperada**: 400 Bad Request com mensagem de validação
+**Expected response**: 400 Bad Request with validation message
 
-### 2. Teste de currency inválida
+### 2. Invalid currency Test
 ```json
 {
   "userId": "user123",
   "currency": "INVALID"
 }
 ```
-**Resposta esperada**: 400 Bad Request com mensagem de validação
+**Expected response**: 400 Bad Request with validation message
 
-### 3. Teste de amount negativo
+### 3. Negative amount Test
 ```json
 {
   "amount": -10.00,
   "currency": "BRL"
 }
 ```
-**Resposta esperada**: 400 Bad Request com mensagem de validação
+**Expected response**: 400 Bad Request with validation message
 
-### 4. Teste de saldo insuficiente
+### 4. Insufficient balance Test
 ```json
 {
   "amount": 1000.00,
   "currency": "BRL"
 }
 ```
-**Resposta esperada**: 500 Internal Server Error com mensagem "Saldo insuficiente"
+**Expected response**: 500 Internal Server Error with message "Insufficient balance"
 
-### 5. Teste de transferência para mesma carteira
+### 5. Transfer to same wallet Test
 ```json
 {
   "targetUserId": "user123",
@@ -276,87 +263,87 @@ Resposta esperada:
   "currency": "BRL"
 }
 ```
-**Resposta esperada**: 500 Internal Server Error com mensagem "Não é possível transferir para a mesma carteira"
+**Expected response**: 500 Internal Server Error with message "Cannot transfer to the same wallet"
 
-## 🎯 Cenários Completos
+## 🎯 Complete Scenarios
 
-### Cenário 1: Fluxo Completo - Usuário 1
+### Scenario 1: Full Flow - User 1
 
-1. **Criar carteira user1**
-2. **Depositar 500 BRL**
-3. **Consultar saldo**
+1. **Create wallet user1**
+2. **Deposit 500 BRL**
+3. **Get balance**
 
-### Cenário 2: Fluxo Completo - Usuário 2
+### Scenario 2: Full Flow - User 2
 
-1. **Criar carteira user2**
-2. **Depositar 300 BRL**
+1. **Create wallet user2**
+2. **Deposit 300 BRL**
 
-### Cenário 3: Transferência Entre Usuários
+### Scenario 3: Transfer Between Users
 
-1. **Transferir 100 BRL de user1 para user2**
-2. **Consultar saldo user1**
-3. **Consultar saldo user2**
-4. **Consultar histórico user1**
-5. **Consultar histórico user2**
+1. **Transfer 100 BRL from user1 to user2**
+2. **Get balance user1**
+3. **Get balance user2**
+4. **Get history user1**
+5. **Get history user2**
 
-## 🔍 Dicas de Debugging
+## 🔍 Debugging Tips
 
-### 1. Verificar Logs
+### 1. Check Logs
 ```bash
 docker-compose logs -f wallet-service
 ```
 
-### 2. Verificar Banco de Dados
+### 2. Check Database
 ```bash
 docker-compose exec postgres psql -U wallet_user -d wallet_db
 ```
 
-### 3. Verificar Status dos Serviços
+### 3. Check Service Status
 ```bash
 docker-compose ps
 ```
 
-### 4. Verificar Métricas
+### 4. Check Metrics
 - Prometheus: http://localhost:9090
 - Grafana: http://localhost:3000
 
-## 📊 Códigos de Resposta
+## 📊 Response Codes
 
-| Código | Descrição |
-|--------|-----------|
-| 200 | Sucesso |
-| 201 | Criado com sucesso |
-| 400 | Dados inválidos |
-| 404 | Carteira não encontrada |
-| 409 | Carteira já existe |
-| 500 | Erro interno do servidor |
+| Code | Description |
+|------|-------------|
+| 200  | Success     |
+| 201  | Created successfully |
+| 400  | Invalid data |
+| 404  | Wallet not found |
+| 409  | Wallet already exists |
+| 500  | Internal server error |
 
-## 🚨 Problemas Comuns
+## 🚨 Common Issues
 
-### 1. Serviço não responde
-- Verifique se o Docker Compose está rodando
-- Execute: `docker-compose up -d`
+### 1. Service not responding
+- Check if Docker Compose is running
+- Run: `docker-compose up -d`
 
-### 2. Erro de conexão
-- Verifique se a porta 8080 está livre
-- Verifique se o `base_url` está correto
+### 2. Connection error
+- Check if port 8080 is free
+- Check if `base_url` is correct
 
-### 3. Validações falhando
-- Verifique o formato dos dados enviados
-- Consulte as mensagens de erro retornadas
+### 3. Validation failures
+- Check the format of the data sent
+- Check the returned error messages
 
-### 4. Banco de dados não conecta
-- Verifique se o PostgreSQL está rodando
-- Execute: `docker-compose logs postgres`
+### 4. Database not connecting
+- Check if PostgreSQL is running
+- Run: `docker-compose logs postgres`
 
-## 📈 Próximos Passos
+## 📈 Next Steps
 
-1. **Execute todos os testes básicos**
-2. **Teste os cenários de validação**
-3. **Execute os cenários completos**
-4. **Explore as métricas no Grafana**
-5. **Analise os logs para auditoria**
+1. **Run all basic tests**
+2. **Test validation scenarios**
+3. **Run complete scenarios**
+4. **Explore metrics in Grafana**
+5. **Analyze logs for auditing**
 
 ---
 
-**🎉 Parabéns! Você agora tem uma suite completa de testes para o microserviço de carteira digital!** 
+**🎉 Congratulations! You now have a complete test suite for the digital wallet microservice!** 

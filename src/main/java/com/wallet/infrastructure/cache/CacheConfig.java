@@ -24,9 +24,8 @@ public class CacheConfig {
     @Bean
     public RedisCacheManagerBuilderCustomizer redisCacheManagerBuilderCustomizer(ObjectMapper objectMapper) {
         return builder -> {
-            // Configuração padrão para todos os caches
             RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofMinutes(30)) // TTL padrão de 30 minutos
+                .entryTtl(Duration.ofMinutes(30))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(createJsonSerializer(objectMapper)));
             
