@@ -5,27 +5,23 @@ WORKDIR /app
 
 # Copiar arquivos de dependências primeiro para aproveitar cache do Docker
 COPY pom.xml .
+
+# Baixar dependências primeiro (melhora o cache)
+RUN mvn dependency:go-offline -B
+
+# Copiar código fonte
 COPY src ./src
 
 # Build da aplicação
 RUN mvn clean package -DskipTests
 
-# Imagem de produção
-FROM eclipse-temurin:17-jre-alpine
+# Imagem de produção - usando distroless para menor tamanho e segurança
+FROM gcr.io/distroless/java17-debian11:nonroot
 
 WORKDIR /app
 
-# Criar usuário não-root para segurança
-RUN addgroup -S wallet && adduser -S -G wallet wallet
-
 # Copiar o JAR da aplicação
 COPY --from=build /app/target/wallet-service-1.0.0.jar app.jar
-
-# Mudar propriedade do arquivo para o usuário wallet
-RUN chown wallet:wallet app.jar
-
-# Mudar para usuário não-root
-USER wallet
 
 # Expor porta da aplicação
 EXPOSE 8080

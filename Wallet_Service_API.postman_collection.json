@@ -1,0 +1,760 @@
+{
+	"info": {
+		"_postman_id": "12345678-1234-1234-1234-123456789012",
+		"name": "Wallet Service API",
+		"description": "Collection completa para testar o microserviço de carteira digital\n\nFuncionalidades:\n- Criar carteira\n- Consultar saldo\n- Realizar depósitos\n- Realizar saques\n- Transferir entre carteiras\n- Consultar histórico de saldo\n- Health check\n\nBase URL: http://localhost:8080",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/wallets/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets",
+						"health"
+					]
+				},
+				"description": "Verifica se o serviço está funcionando"
+			},
+			"response": []
+		},
+		{
+			"name": "Autenticação",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"user1\",\n    \"password\": \"user123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Fazer login e obter token JWT"
+					},
+					"response": []
+				},
+				{
+					"name": "Validar Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/validate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"validate"
+							]
+						},
+						"description": "Validar se o token JWT é válido"
+					},
+					"response": []
+				},
+				{
+					"name": "Renovar Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Renovar o token de acesso usando refresh token"
+					},
+					"response": []
+				}
+			],
+			"description": "Endpoints de autenticação e autorização"
+		},
+		{
+			"name": "Criar Carteira",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": \"user123\",\n    \"currency\": \"BRL\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/wallets",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets"
+					]
+				},
+				"description": "Cria uma nova carteira para um usuário"
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar Carteira",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/wallets/{{userId}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets",
+						"{{userId}}"
+					]
+				},
+				"description": "Consulta os detalhes de uma carteira"
+			},
+			"response": []
+		},
+		{
+			"name": "Realizar Depósito",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 100.50,\n    \"currency\": \"BRL\",\n    \"description\": \"Depósito inicial\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/wallets/{{userId}}/deposit",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets",
+						"{{userId}}",
+						"deposit"
+					]
+				},
+				"description": "Realiza um depósito na carteira do usuário"
+			},
+			"response": []
+		},
+		{
+			"name": "Realizar Saque",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"amount\": 50.25,\n    \"currency\": \"BRL\",\n    \"description\": \"Saque para pagamento\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/wallets/{{userId}}/withdraw",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets",
+						"{{userId}}",
+						"withdraw"
+					]
+				},
+				"description": "Realiza um saque da carteira do usuário"
+			},
+			"response": []
+		},
+		{
+			"name": "Transferir Entre Carteiras",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"targetUserId\": \"user456\",\n    \"amount\": 25.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Transferência para pagamento\"\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/wallets/{{userId}}/transfer",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets",
+						"{{userId}}",
+						"transfer"
+					]
+				},
+				"description": "Transfere dinheiro entre carteiras de usuários"
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar Histórico de Saldo",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{access_token}}"
+					}
+				],
+				"url": {
+					"raw": "{{base_url}}/api/wallets/{{userId}}/balance-history",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"wallets",
+						"{{userId}}",
+						"balance-history"
+					]
+				},
+				"description": "Consulta o histórico de saldo de uma carteira"
+			},
+			"response": []
+		},
+		{
+			"name": "Testes de Validação",
+			"item": [
+				{
+					"name": "Criar Carteira - userId inválido",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"\",\n    \"currency\": \"BRL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/wallets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallets"
+							]
+						},
+						"description": "Testa validação de userId vazio"
+					},
+					"response": []
+				},
+				{
+					"name": "Criar Carteira - currency inválida",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": \"user123\",\n    \"currency\": \"INVALID\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/wallets",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallets"
+							]
+						},
+						"description": "Testa validação de currency inválida"
+					},
+					"response": []
+				},
+				{
+					"name": "Depósito - amount inválido",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": -10.00,\n    \"currency\": \"BRL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/wallets/{{userId}}/deposit",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"{{userId}}",
+								"deposit"
+							]
+						},
+						"description": "Testa validação de amount negativo"
+					},
+					"response": []
+				},
+				{
+					"name": "Saque - saldo insuficiente",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"amount\": 1000.00,\n    \"currency\": \"BRL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/wallets/{{userId}}/withdraw",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"{{userId}}",
+								"withdraw"
+							]
+						},
+						"description": "Testa saque com saldo insuficiente"
+					},
+					"response": []
+				},
+				{
+					"name": "Transferência - mesma carteira",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"targetUserId\": \"{{userId}}\",\n    \"amount\": 25.00,\n    \"currency\": \"BRL\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/wallets/{{userId}}/transfer",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"wallets",
+								"{{userId}}",
+								"transfer"
+							]
+						},
+						"description": "Testa transferência para a mesma carteira"
+					},
+					"response": []
+				}
+			],
+			"description": "Testes de validação e cenários de erro"
+		},
+		{
+			"name": "Cenários de Teste",
+			"item": [
+				{
+					"name": "Fluxo Completo - Usuário 1",
+					"item": [
+						{
+							"name": "1. Criar carteira user1",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": \"user1\",\n    \"currency\": \"BRL\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/wallets",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Depositar 500 BRL",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"amount\": 500.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Depósito inicial\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user1/deposit",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user1",
+										"deposit"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Consultar saldo",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user1"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Fluxo completo para o usuário 1"
+				},
+				{
+					"name": "Fluxo Completo - Usuário 2",
+					"item": [
+						{
+							"name": "1. Criar carteira user2",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"userId\": \"user2\",\n    \"currency\": \"BRL\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/wallets",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Depositar 300 BRL",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"amount\": 300.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Depósito inicial\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user2/deposit",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user2",
+										"deposit"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Fluxo completo para o usuário 2"
+				},
+				{
+					"name": "Transferência Entre Usuários",
+					"item": [
+						{
+							"name": "1. Transferir 100 BRL de user1 para user2",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"targetUserId\": \"user2\",\n    \"amount\": 100.00,\n    \"currency\": \"BRL\",\n    \"description\": \"Transferência de pagamento\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user1/transfer",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user1",
+										"transfer"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Consultar saldo user1",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Consultar saldo user2",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "4. Consultar histórico user1",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user1/balance-history",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user1",
+										"balance-history"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "5. Consultar histórico user2",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/wallets/user2/balance-history",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"wallets",
+										"user2",
+										"balance-history"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"description": "Teste completo de transferência entre usuários"
+				}
+			],
+			"description": "Cenários de teste completos"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "userId",
+			"value": "user123",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+} 
